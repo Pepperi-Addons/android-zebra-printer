@@ -80,13 +80,8 @@ class MainFragment : Fragment() {
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_MainFragment_to_SecondFragment)
         }
-
-        setPrinter()
     }
 
-    private fun setPrinter() {
-        mainViewModel.setAllPrinters()
-    }
 
     private fun checkScreenEmptyList() {
         if (listAdapter.itemCount ==  0){

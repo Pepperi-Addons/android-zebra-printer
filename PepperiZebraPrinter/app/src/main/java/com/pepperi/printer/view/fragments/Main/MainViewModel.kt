@@ -13,12 +13,11 @@ class MainViewModel(val repository :Repository) : ViewModel(){
 
     var allPrintersLiveData : MutableLiveData<List<UserPrinter>?> =  MutableLiveData<List<UserPrinter>?>()
 
-    fun setAllPrinters() = viewModelScope.launch{
-    repository.allPrinter().let {
-        allPrintersLiveData.value = it
+    init {
+        repository.allPrinter().let {
+            allPrintersLiveData.value = it
+        }
     }
-}
-
 }
 
 
