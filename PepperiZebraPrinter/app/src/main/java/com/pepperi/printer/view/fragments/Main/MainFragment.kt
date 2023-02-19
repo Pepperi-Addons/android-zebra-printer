@@ -70,7 +70,7 @@ class MainFragment : Fragment() {
             Log.e("allPrintersLD.observe", list.toString())
 
             listAdapter.submitList(list)
-            chakeScreenEmptyList()
+            checkScreenEmptyList()
         }
     }
 
@@ -88,7 +88,7 @@ class MainFragment : Fragment() {
         mainViewModel.setAllPrinters()
     }
 
-    private fun chakeScreenEmptyList() {
+    private fun checkScreenEmptyList() {
         if (listAdapter.itemCount ==  0){
             binding.printerListRcv.visibility = View.GONE
             binding.noPrinterTxt.visibility = View.VISIBLE
