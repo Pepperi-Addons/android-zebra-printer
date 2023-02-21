@@ -26,20 +26,13 @@ class ListPrinterAdapter :
     }
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        holder.bind(list[position], position)
-    }
-
-    override fun submitList(submitList: List<UserPrinter>?) {
-        submitList?.let {
-            list = it
-        }
-        super.submitList(list)
+        holder.bind(getItem(position), position)
     }
 }
 
 class ListUserPrinterDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
     override fun areItemsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.mac == newItem.mac
     }
 
     override fun areContentsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {

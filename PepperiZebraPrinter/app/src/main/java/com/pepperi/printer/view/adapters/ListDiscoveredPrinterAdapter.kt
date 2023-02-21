@@ -8,15 +8,16 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 import com.pepperi.printer.databinding.CardPrinterBinding
+import com.pepperi.printer.model.entities.UserPrinter
 import com.zebra.sdk.printer.discovery.DiscoveredPrinter
 
 class ListDiscoveredPrinterAdapter :
-    ListAdapter<DiscoveredPrinter,ListDiscoveredPrinterAdapter.ListViewHolder>(ListMessageDiffCallback()){
+    ListAdapter<UserPrinter,ListDiscoveredPrinterAdapter.ListViewHolder>(ListMessageDiffCallback()){
 
         class ListViewHolder(private val binding: CardPrinterBinding, view: View) : RecyclerView.ViewHolder(view){
-            fun bind(printer: DiscoveredPrinter, position: Int){
-                binding.nameCardTxt.text = "${printer.discoveryDataMap?.getValue("FRIENDLY_NAME")}"
-                binding.macCardTxt.text = "${printer.discoveryDataMap?.getValue("MAC_ADDRESS")}"
+            fun bind(printer: UserPrinter, position: Int){
+                binding.nameCardTxt.text = "${printer.name}"
+                binding.macCardTxt.text = "${printer.mac}"
             }
         }
 
@@ -28,21 +29,14 @@ class ListDiscoveredPrinterAdapter :
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         holder.bind(getItem(position), position)
     }
-
-//    override fun submitList(submitList: List<DiscoveredPrinter>?) {
-//        submitList?.let {
-//            list = it
-//        }
-//        super.submitList(submitList)
-//    }
 }
 
-class ListMessageDiffCallback : DiffUtil.ItemCallback<DiscoveredPrinter>(){
-    override fun areItemsTheSame(oldItem: DiscoveredPrinter, newItem: DiscoveredPrinter): Boolean {
-       return oldItem.address == newItem.address
+class ListMessageDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
+    override fun areItemsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
+       return oldItem.mac == newItem.mac
     }
 
-    override fun areContentsTheSame(oldItem: DiscoveredPrinter, newItem: DiscoveredPrinter): Boolean {
+    override fun areContentsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
         return areItemsTheSame(oldItem, newItem)
     }
 

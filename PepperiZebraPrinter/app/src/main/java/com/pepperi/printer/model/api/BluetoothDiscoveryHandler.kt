@@ -11,26 +11,24 @@ import kotlinx.coroutines.launch
 
 class BluetoothDiscoveryHandler(val flowCollector: ProducerScope<ArrayList<DiscoveredPrinter?>?>) : DiscoveryHandler {
 
-     val discoveryComplete
-        get() = thisDiscoveryComplete
-    private var thisDiscoveryComplete = false
-    var printers: ArrayList<DiscoveredPrinter?> = arrayListOf()
+    var printers: ArrayList<DiscoveredPrinter?> = arrayListOf() // internal member to save the results
+
     override fun foundPrinter(discoveredPrinter: DiscoveredPrinter?) {
         printers.add(discoveredPrinter)
-        Log.e("DiscoveryHandler", "discover fund ${discoveredPrinter?.discoveryDataMap?.getValue("FRIENDLY_NAME")} printer, MAC:  ${discoveredPrinter?.discoveryDataMap?.getValue("MAC_ADDRESS")}" )
-        Log.e("DiscoveryHandler", "discover fund ${printers.size} printers" )
+        Log.e("DiscoveryHandler", "discover found ${discoveredPrinter?.discoveryDataMap?.getValue("FRIENDLY_NAME")} printer, MAC:  ${discoveredPrinter?.discoveryDataMap?.getValue("MAC_ADDRESS")}" )
+        Log.e("DiscoveryHandler", "discover found ${printers.size} printers" )
     }
 
     override fun discoveryFinished() {
-        Log.e("DiscoveryHandler", "discoveryFinished fund ${printers.size} printers" )
+        Log.e("DiscoveryHandler", "discoveryFinished found ${printers.size} printers" )
         GlobalScope.launch(Dispatchers.IO) {flowCollector.send(printers)  }
-        thisDiscoveryComplete = true
     }
 
     override fun discoveryError(error: String?) {
         Log.e("DiscoveryHandler", error.toString() )
         GlobalScope.launch(Dispatchers.IO) {flowCollector.send(null)  }
-        thisDiscoveryComplete = true
+        throw Throwable(error) // throw the error it is catch by the flow
+
     }
 
 

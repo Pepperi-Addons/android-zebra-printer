@@ -37,7 +37,7 @@ class AddPrintersFragment : Fragment() {
 
         userApplication = requireActivity().application as UserApplication
 
-        viewModelFactory = ViewModelFactory(userApplication.repository)
+        viewModelFactory = ViewModelFactory(userApplication.repository, null,userApplication.zebraApi)
         addPrintersModel = ViewModelProvider(this, viewModelFactory).get(AddPrintersViewModel::class.java)
 
 
@@ -64,6 +64,8 @@ class AddPrintersFragment : Fragment() {
 
         binding.buttonSecond.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
+
+            addPrintersModel.scanPrinters()
 
         }
     }

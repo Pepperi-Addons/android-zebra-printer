@@ -13,9 +13,11 @@ import kotlinx.coroutines.flow.channelFlow
 class ZebraApi
     (val context: Context) {
 
+    //The function Scan of Zebra bluetooth printers and return them as List of DiscoveredPrinter
     suspend fun bluetoothScan() : Flow<ArrayList<DiscoveredPrinter?>> {
          val lastlist : Flow<ArrayList<DiscoveredPrinter?>> = channelFlow {
              val discoveryHandler = BluetoothDiscoveryHandler(this as ProducerScope<ArrayList<DiscoveredPrinter?>?>)
+
             try {
                 Log.e("zebraScan","Starting printer discovery.")
                 BluetoothDiscoverer.findPrinters(context,discoveryHandler)
@@ -23,7 +25,8 @@ class ZebraApi
             } catch (e: DiscoveryException) {
                 Log.e("zebraScan_Error",e.stackTraceToString())
             }
-             awaitClose()
+
+             awaitClose()   // function was forces the channelFlow to wait for results
         }
         return lastlist
     }
