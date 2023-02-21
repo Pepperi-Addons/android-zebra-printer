@@ -27,7 +27,7 @@ class BluetoothDiscoveryHandler(val flowCollector: ProducerScope<ArrayList<Disco
     override fun discoveryError(error: String?) {
         Log.e("DiscoveryHandler", error.toString() )
         GlobalScope.launch(Dispatchers.IO) {flowCollector.send(null)  }
-        throw Throwable(error) // throw the error it is catch by the flow
+        throw Throwable(error) // throw the error it is catch by the flow in the viewModel
 
     }
 
