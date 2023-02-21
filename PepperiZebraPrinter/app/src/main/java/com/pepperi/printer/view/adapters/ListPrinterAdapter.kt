@@ -11,12 +11,12 @@ import com.pepperi.printer.databinding.CardPrinterBinding
 import com.pepperi.printer.model.entities.UserPrinter
 
 class ListPrinterAdapter :
-    ListAdapter<UserPrinter,ListPrinterAdapter.ListViewHolder>(ListMessageDiffCallback()){
+    ListAdapter<UserPrinter,ListPrinterAdapter.ListViewHolder>(ListUserPrinterDiffCallback()){
     private var list: List<UserPrinter> = mutableListOf()
 
         class ListViewHolder(private val binding: CardPrinterBinding, view: View) : RecyclerView.ViewHolder(view){
             fun bind(printer: UserPrinter, position: Int){
-                binding.titleCardTxt.text = "Printer ${position} name: ${printer.name}"
+                binding.nameCardTxt.text = "Printer ${position} name: ${printer.name}"
             }
         }
 
@@ -37,9 +37,9 @@ class ListPrinterAdapter :
     }
 }
 
-class ListMessageDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
+class ListUserPrinterDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
     override fun areItemsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
-       return oldItem.id == newItem.id
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
