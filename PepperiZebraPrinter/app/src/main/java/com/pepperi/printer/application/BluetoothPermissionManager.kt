@@ -9,7 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
-class PermissionGranted(val fragment: Fragment) {
+class BluetoothPermissionManager(val fragment: Fragment) {
 
     private var isBluetoothScanPermissionGranted = false
     private var isBluetoothConnectPermissionGranted = false
@@ -17,11 +17,7 @@ class PermissionGranted(val fragment: Fragment) {
 
     private lateinit var permissionLauncher : ActivityResultLauncher<Array<String>>
 
-    init {
-        getPermission()
-    }
-
-   private fun getPermission(){
+    fun requestPermissions(){
 
        permissionLauncher()
 

@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
-import com.pepperi.printer.application.PermissionGranted
+import com.pepperi.printer.application.BluetoothPermissionManager
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
@@ -56,7 +56,7 @@ class MainFragment : Fragment() {
 
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        PermissionGranted(this)
+        BluetoothPermissionManager(this).requestPermissions()
 
         initList()
 
@@ -95,8 +95,6 @@ class MainFragment : Fragment() {
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_MainFragment_to_SecondFragment)
         }
-
-        checkScreenEmptyList()
     }
 
 

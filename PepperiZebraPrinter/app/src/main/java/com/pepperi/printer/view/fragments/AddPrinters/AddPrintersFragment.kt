@@ -1,10 +1,14 @@
 package com.pepperi.printer.view.fragments.AddPrinters
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,7 +21,7 @@ import com.pepperi.printer.viewModel.ViewModelFactory
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class AddPrintersFragment : Fragment() {
+class AddPrintersFragment : DialogFragment() {
 
     private var _binding: FragmentAddPrintersBinding? = null
 
@@ -62,7 +66,7 @@ class AddPrintersFragment : Fragment() {
 
         initObservers()
 
-        binding.buttonSecond.setOnClickListener {
+        binding.scanBtn.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
 
             addPrintersModel.scanPrinters()
@@ -103,4 +107,7 @@ class AddPrintersFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        AlertDialog.Builder(requireContext()).create()
 }
