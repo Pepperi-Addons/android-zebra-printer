@@ -9,7 +9,7 @@ import com.pepperi.printer.model.api.zebra.ZebraApi
 import com.pepperi.printer.view.fragments.AddPrinters.AddPrintersViewModel
 
 @Suppress("UNCHECKED_CAST")
-class ViewModelFactory(private val repository: Repository, private val sharedPreferences: SharedPreferences? = null, private val zebraApi: ZebraApi?  = null): ViewModelProvider.NewInstanceFactory() {
+class ViewModelFactory(private val repository: Repository, private val zebraApi: ZebraApi?  = null): ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
         when(modelClass){
             MainViewModel::class.java ->  MainViewModel(repository) as T
