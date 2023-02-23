@@ -106,6 +106,7 @@ class AddPrintersFragment : DialogFragment() {
         listAdapter = ListDiscoveredPrinterAdapter()
         listAdapter.setOnItemClickListener(object : ListDiscoveredPrinterAdapter.ClickListener {
             override fun onItemClick(v: View, position: Int) {
+                Log.e("onItemClick", "ADD_PERINTER ${position}")
                 selectedPosition = position
             }
         })

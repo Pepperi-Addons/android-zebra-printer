@@ -15,18 +15,29 @@ import com.pepperi.printer.view.fragments.AddPrinters.AddPrintersViewModel
 class AddUserPrinterDialogManager(val fragment: AddPrintersFragment,val viewModel: AddPrintersViewModel) {
 
     val dialog = Dialog(fragment.requireContext())
-    val spinner = dialog.findViewById(R.id.protocol_mode_spnr) as Spinner
-    val friendly_name = dialog.findViewById(R.id.friendly_name_iet) as TextInputEditText
-    val add_printer_btn = dialog.findViewById(R.id.add_printer_btn) as Button
+    lateinit var  spinner : Spinner
+    lateinit var friendly_name : TextInputEditText
+    lateinit var add_printer_btn : Button
 
     fun showDialog(name: String, selectedPosition: Int){
 
         dialogSetting()
 
+        initMembers()
+
         membersSetting(name, selectedPosition)
 
         dialog.show()
 
+    }
+
+    private fun initMembers() {
+
+        spinner = dialog.findViewById(R.id.protocol_mode_spnr) as Spinner
+
+        friendly_name = dialog.findViewById(R.id.friendly_name_iet) as TextInputEditText
+
+        add_printer_btn = dialog.findViewById(R.id.add_printer_btn) as Button
     }
 
     private fun membersSetting(name: String, selectedPosition: Int) {

@@ -30,13 +30,19 @@ class SharedPreferencesApi {
 
         val printersDataString = getStringPrintersData(sharedPreferences)
 
-        val printersDataStringArray = printersDataString.split("**") //  split the data by  ** to create string array of user printers
+        if (printersDataString != "") {
+            val printersDataStringArray =
+                printersDataString.split("**") //  split the data by  ** to create string array of user printers
 
-        for (i in 0 until printersDataStringArray.size){
-            val userPrinter = gson.fromJson(printersDataStringArray[i],UserPrinterModel::class.java) // get UserPrinterModel object from string data by using GSON
+            for (i in 0 until printersDataStringArray.size) {
+                val userPrinter = gson.fromJson(
+                    printersDataStringArray[i],
+                    UserPrinterModel::class.java
+                ) // get UserPrinterModel object from string data by using GSON
 
-            Log.e("sharedPreferences", "get userPrinter: ${userPrinter.toString()}")
-            returnedListOfUserPrinter.add(userPrinter)
+                Log.e("sharedPreferences", "get userPrinter: ${userPrinter.toString()}")
+                returnedListOfUserPrinter.add(userPrinter)
+            }
         }
         return returnedListOfUserPrinter
     }
