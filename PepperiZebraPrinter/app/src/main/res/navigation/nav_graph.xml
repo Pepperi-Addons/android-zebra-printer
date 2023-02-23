@@ -17,9 +17,15 @@
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
+<<<<<<< Updated upstream
         android:name="com.pepperi.printer.view.fragments.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
+=======
+        android:name="com.pepperi.printer.view.fragments.AddPrinters.AddPrintersFragment"
+        android:label="Add Printer"
+        tools:layout="@layout/fragment_add_printers">
+>>>>>>> Stashed changes
 
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"

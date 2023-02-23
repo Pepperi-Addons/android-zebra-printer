@@ -11,4 +11,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="no_printer_configured">No Printer Configured</string>
     <string name="main_fragment_name">Pepperi Printers</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="otg">OTG</string>
+    <string name="network">Network</string>
 </resources>
