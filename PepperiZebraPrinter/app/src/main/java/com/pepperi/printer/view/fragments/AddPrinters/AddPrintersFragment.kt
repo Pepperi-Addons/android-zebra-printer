@@ -43,8 +43,7 @@ class AddPrintersFragment : DialogFragment() {
 
         userApplication = requireActivity().application as UserApplication
 
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-        viewModelFactory = ViewModelFactory(userApplication.repository, sharedPref,userApplication.zebraApi)
+        viewModelFactory = ViewModelFactory(userApplication.repository,userApplication.zebraApi)
         addPrintersModel = ViewModelProvider(this, viewModelFactory).get(AddPrintersViewModel::class.java)
 
 

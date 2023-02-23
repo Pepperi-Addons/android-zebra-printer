@@ -45,8 +45,7 @@ class MainFragment : Fragment() {
 
         userApplication = requireActivity().application as UserApplication
 
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-        viewModelFactory = ViewModelFactory(userApplication.repository,sharedPref)
+        viewModelFactory = ViewModelFactory(userApplication.repository)
         mainViewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
 
     }
