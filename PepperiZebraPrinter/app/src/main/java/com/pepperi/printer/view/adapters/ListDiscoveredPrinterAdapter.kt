@@ -41,7 +41,6 @@ open class ListDiscoveredPrinterAdapter :
                 getItem(adapterPosition).isSelected = true
                 notifyDataSetChanged()
             }
-
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {

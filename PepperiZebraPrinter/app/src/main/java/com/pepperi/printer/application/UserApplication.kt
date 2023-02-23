@@ -5,6 +5,7 @@ import com.pepperi.printer.model.Repository
 import com.pepperi.printer.model.api.sharedPreferences.SharedPreferencesApi
 import com.pepperi.printer.model.api.zebra.ZebraApi
 
+
 /**
  * A application class where we can define the variable scope to use through out the application.
  */
@@ -15,3 +16,4 @@ class UserApplication() : Application(){
     // A variable for repository.
     val sharedPreferencesApi by lazy { SharedPreferencesApi() }
     val repository by lazy { Repository(sharedPreferencesApi) } }
+

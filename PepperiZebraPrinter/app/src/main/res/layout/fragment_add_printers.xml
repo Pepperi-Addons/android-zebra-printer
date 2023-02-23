@@ -31,7 +31,6 @@
             android:layout_height="match_parent"
             android:text="@string/network" />
 
-
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -92,3 +91,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

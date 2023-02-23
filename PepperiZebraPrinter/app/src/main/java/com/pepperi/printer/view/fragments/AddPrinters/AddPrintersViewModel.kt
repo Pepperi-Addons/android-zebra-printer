@@ -69,5 +69,4 @@ class AddPrintersViewModel(val repository: Repository,val sharedPreferences: Sha
         repository.saveUserPrinter(userPrinterModel, sharedPreferences)
     }
 
-
     }

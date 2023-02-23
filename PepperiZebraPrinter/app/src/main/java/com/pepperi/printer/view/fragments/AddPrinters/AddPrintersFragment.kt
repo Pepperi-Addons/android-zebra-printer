@@ -34,7 +34,6 @@ class AddPrintersFragment : DialogFragment() {
 
     private var selectedPosition :Int? = null
 
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -149,12 +148,11 @@ class AddPrintersFragment : DialogFragment() {
         addPrintersModel.scanPrinters()
     }
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         AlertDialog.Builder(requireContext()).create()
