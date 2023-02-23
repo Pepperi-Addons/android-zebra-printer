@@ -1,15 +1,18 @@
 package com.pepperi.printer.model.api.sharedPreferences
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
 import com.pepperi.printer.model.entities.UserPrinterModel
 
-class SharedPreferencesApi {
+class SharedPreferencesApi(private val context: Context) {
+
+    private val sharedPreferences = context.getSharedPreferences("USER_SP",Context.MODE_PRIVATE)
 
     //  THe function add user to the sharedPreferences
-    fun saveUserPrinter(userPrinterModel: UserPrinterModel, sharedPreferences : SharedPreferences){
-        val printersDataString = getStringPrintersData(sharedPreferences) //
+    fun saveUserPrinter(userPrinterModel: UserPrinterModel){
+        val printersDataString = getStringPrintersData() //
         var newData = ""
         if (printersDataString != ""){
             newData = "${printersDataString}**${printerToStringData(userPrinterModel)}" // Adding the sign ** to mark the start of a new user printer
@@ -23,12 +26,12 @@ class SharedPreferencesApi {
         }
     }
     // THe function load all the saved user printers from sharedPreferences to list
-    fun LoadAllUserPrinters(sharedPreferences : SharedPreferences) : ArrayList<UserPrinterModel>{
+    fun LoadAllUserPrinters() : ArrayList<UserPrinterModel>{
         val returnedListOfUserPrinter = arrayListOf<UserPrinterModel>()
 
         val gson = Gson()
 
-        val printersDataString = getStringPrintersData(sharedPreferences)
+        val printersDataString = getStringPrintersData()
 
         val printersDataStringArray = printersDataString.split("**") //  split the data by  ** to create string array of user printers
 
@@ -41,7 +44,7 @@ class SharedPreferencesApi {
         return returnedListOfUserPrinter
     }
     // get data from sharedPreferences (arrived by string format)
-    private fun getStringPrintersData(sharedPreferences : SharedPreferences) : String{
+    private fun getStringPrintersData() : String{
         return sharedPreferences.getString("USER_PRINTERS", "") ?: ""
     }
     // The function return string data from UserPrinterModel object by using GSON

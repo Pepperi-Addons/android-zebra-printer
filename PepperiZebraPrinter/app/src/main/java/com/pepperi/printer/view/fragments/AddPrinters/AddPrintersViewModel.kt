@@ -14,7 +14,7 @@ import com.pepperi.printer.model.entities.UserPrinterModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class AddPrintersViewModel(val repository: Repository,val sharedPreferences: SharedPreferences, val  zebraApi: ZebraApi) : ViewModel(){
+class AddPrintersViewModel(val repository: Repository, val  zebraApi: ZebraApi) : ViewModel(){
 
     var discoveredPrintersLiveData : MutableLiveData<List<SelectedPrinterModel?>?> =  MutableLiveData<List<SelectedPrinterModel?>?>()
 
@@ -26,13 +26,11 @@ class AddPrintersViewModel(val repository: Repository,val sharedPreferences: Sha
         discoveredPrintersLiveData.value = emptyList
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun scanPrinters(){
         viewModelScope.launch {
             collectPrinters()
         }
     }
-   @RequiresApi(Build.VERSION_CODES.N)
    private suspend fun collectPrinters(){
        val list = arrayListOf<SelectedPrinterModel?>()
         zebraApi.bluetoothScan().catch { exception -> Log.e("zebraScan_Error", exception.stackTraceToString()) } // catch and handle with errors
@@ -66,7 +64,7 @@ class AddPrintersViewModel(val repository: Repository,val sharedPreferences: Sha
     }
 
     fun saveUserPrinter(userPrinterModel: UserPrinterModel){
-        repository.saveUserPrinter(userPrinterModel, sharedPreferences)
+        repository.saveUserPrinter(userPrinterModel)
     }
 
     }
