@@ -9,14 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.pepperi.printer.databinding.CardPrinterBinding
 import com.pepperi.printer.model.entities.UserPrinter
+import com.zebra.sdk.printer.discovery.DiscoveredPrinter
 
-class ListPrinterAdapter :
-    ListAdapter<UserPrinter,ListPrinterAdapter.ListViewHolder>(ListUserPrinterDiffCallback()){
-    private var list: List<UserPrinter> = mutableListOf()
+class ListDiscoveredPrinterAdapter :
+    ListAdapter<UserPrinter,ListDiscoveredPrinterAdapter.ListViewHolder>(ListMessageDiffCallback()){
 
         class ListViewHolder(private val binding: CardPrinterBinding, view: View) : RecyclerView.ViewHolder(view){
             fun bind(printer: UserPrinter, position: Int){
-                binding.nameCardTxt.text = "Printer ${position} name: ${printer.name}"
+                binding.nameCardTxt.text = "${printer.name}"
+                binding.macCardTxt.text = "${printer.mac}"
             }
         }
 
@@ -30,9 +31,9 @@ class ListPrinterAdapter :
     }
 }
 
-class ListUserPrinterDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
+class ListMessageDiffCallback : DiffUtil.ItemCallback<UserPrinter>(){
     override fun areItemsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {
-        return oldItem.mac == newItem.mac
+       return oldItem.mac == newItem.mac
     }
 
     override fun areContentsTheSame(oldItem: UserPrinter, newItem: UserPrinter): Boolean {

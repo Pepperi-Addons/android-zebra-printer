@@ -1,4 +1,4 @@
 package com.pepperi.printer.model.entities
 
-data class UserPrinter(val id: Int, val name: String) {
+data class UserPrinter( val name: String,val mac: String) {
 }

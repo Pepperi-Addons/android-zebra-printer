@@ -2,23 +2,27 @@ package com.pepperi.printer.view.fragments.Main
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
+import com.pepperi.printer.application.BluetoothPermissionManager
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
 
+
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
+const val BLUETOOTH_PERMISSION = 100
+
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
@@ -33,6 +37,8 @@ class MainFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,6 +46,7 @@ class MainFragment : Fragment() {
 
         viewModelFactory = ViewModelFactory(userApplication.repository)
         mainViewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -49,13 +56,21 @@ class MainFragment : Fragment() {
 
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
+        BluetoothPermissionManager(this).requestPermissions()
+
         initList()
 
         initObservers()
 
+
+
         return binding.root
 
     }
+
+
+
+
 
     private fun initList() {
         listAdapter = ListPrinterAdapter()
