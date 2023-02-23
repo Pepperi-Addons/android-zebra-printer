@@ -14,6 +14,6 @@ class UserApplication() : Application(){
     val zebraApi by lazy { ZebraApi(applicationContext) }
 
     // A variable for repository.
-    val sharedPreferencesApi by lazy { SharedPreferencesApi() }
+    val sharedPreferencesApi by lazy { SharedPreferencesApi(applicationContext) }
     val repository by lazy { Repository(sharedPreferencesApi) } }
 

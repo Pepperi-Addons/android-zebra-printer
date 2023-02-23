@@ -7,7 +7,7 @@ import com.pepperi.printer.model.Repository
 import com.pepperi.printer.model.entities.UserPrinterModel
 
 
-class MainViewModel(val repository: Repository,val sharedPreferences: SharedPreferences) : ViewModel(){
+class MainViewModel(val repository: Repository) : ViewModel(){
 
     var allPrintersLiveData : MutableLiveData<List<UserPrinterModel>?> =  MutableLiveData<List<UserPrinterModel>?>()
 
@@ -16,7 +16,7 @@ class MainViewModel(val repository: Repository,val sharedPreferences: SharedPref
     }
 
     fun getAllUserPrinters(){
-        allPrintersLiveData.value = repository.getAllUserPrinter(sharedPreferences)
+        allPrintersLiveData.value = repository.getAllUserPrinter()
     }
 }
 
