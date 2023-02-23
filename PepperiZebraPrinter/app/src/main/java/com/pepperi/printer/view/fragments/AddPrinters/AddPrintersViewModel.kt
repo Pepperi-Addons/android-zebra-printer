@@ -1,7 +1,9 @@
 package com.pepperi.printer.view.fragments.AddPrinters
 
 import android.content.SharedPreferences
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,11 +26,13 @@ class AddPrintersViewModel(val repository: Repository,val sharedPreferences: Sha
         discoveredPrintersLiveData.value = emptyList
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun scanPrinters(){
         viewModelScope.launch {
             collectPrinters()
         }
     }
+   @RequiresApi(Build.VERSION_CODES.N)
    private suspend fun collectPrinters(){
        val list = arrayListOf<SelectedPrinterModel?>()
         zebraApi.bluetoothScan().catch { exception -> Log.e("zebraScan_Error", exception.stackTraceToString()) } // catch and handle with errors

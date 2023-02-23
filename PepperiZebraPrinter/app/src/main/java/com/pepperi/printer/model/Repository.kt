@@ -11,20 +11,9 @@ class Repository(private val sharedPreferencesApi: SharedPreferencesApi) {
         sharedPreferencesApi.saveUserPrinter(userPrinterModel, sharedPreferences)
     }
 
-    fun allPrinter() = hardCodedList()
-
     fun getAllUserPrinter(sharedPreferences: SharedPreferences): ArrayList<UserPrinterModel> {
        return sharedPreferencesApi.LoadAllUserPrinters(sharedPreferences)
     }
 
-    private fun hardCodedList(): List<UserPrinterModel> {
-
-        val newList = arrayListOf <UserPrinterModel>()
-
-//        newList.add(UserPrinter(0,"test1"))
-//        newList.add(UserPrinter(1,"test2"))
-
-        return newList
-    }
 
 }
