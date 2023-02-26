@@ -1,21 +1,18 @@
 package com.pepperi.printer.model
 
-import com.pepperi.printer.model.entities.UserPrinter
+import com.pepperi.printer.model.api.sharedPreferences.SharedPreferencesApi
+import com.pepperi.printer.model.entities.UserPrinterModel
 
 
-class Repository() {
+class Repository(private val sharedPreferencesApi: SharedPreferencesApi) {
 
-
-    fun allPrinter() = hardCodedList()
-
-    private fun hardCodedList(): List<UserPrinter> {
-
-        val newList = arrayListOf <UserPrinter>()
-
-//        newList.add(UserPrinter(0,"test1"))
-//        newList.add(UserPrinter(1,"test2"))
-
-        return newList
+    fun saveUserPrinter(userPrinterModel: UserPrinterModel){
+        sharedPreferencesApi.saveUserPrinter(userPrinterModel)
     }
+
+    fun getAllUserPrinters(): ArrayList<UserPrinterModel> {
+       return sharedPreferencesApi.getAllUserPrinters()
+    }
+
 
 }

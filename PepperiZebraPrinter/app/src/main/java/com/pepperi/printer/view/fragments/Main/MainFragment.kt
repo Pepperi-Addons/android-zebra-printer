@@ -1,5 +1,6 @@
 package com.pepperi.printer.view.fragments.Main
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
-import com.pepperi.printer.application.BluetoothPermissionManager
+import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
@@ -111,5 +112,11 @@ class MainFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mainViewModel.getAllUserPrinters()
     }
 }

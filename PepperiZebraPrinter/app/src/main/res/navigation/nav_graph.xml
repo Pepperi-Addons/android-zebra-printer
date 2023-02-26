@@ -18,7 +18,8 @@
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.pepperi.printer.view.fragments.AddPrinters.AddPrintersFragment"
-        android:label="@string/second_fragment_label"
+        android:label="Add Printer"
+
         tools:layout="@layout/fragment_add_printers">
 
         <action

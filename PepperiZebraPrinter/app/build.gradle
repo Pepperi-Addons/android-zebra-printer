@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.pepperi.printer"
-        minSdk 21
+        minSdk 24
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -58,5 +58,8 @@ dependencies {
     // Lifecycle components
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+
+    // GSON
+    implementation 'com.google.code.gson:gson:2.10.1'
 
 }
