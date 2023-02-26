@@ -1,22 +1,23 @@
 package com.pepperi.printer.view.fragments.Main
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
-import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
+import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
+import kotlinx.coroutines.launch
 
 
 /**
@@ -33,6 +34,8 @@ class MainFragment : Fragment() {
     private lateinit var userApplication: UserApplication
 
     private lateinit var listAdapter: ListPrinterAdapter
+    private var selectedPrinter :Int? = null
+    private var defaultPrinter :Int? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -49,6 +52,31 @@ class MainFragment : Fragment() {
         mainViewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
 
     }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_user_printer, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_action_default -> true
+            R.id.menu_action_remove -> {
+                selectedPrinter?.let {
+                    Log.e("menu_action_remove", "start")
+                    renoveUserPrinter(it)
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun renoveUserPrinter(selectedPrinter: Int) {
+
+        mainViewModel.removeUserPrinter(selectedPrinter)
+
+        mainViewModel.getAllUserPrinters()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,30 +91,80 @@ class MainFragment : Fragment() {
 
         initObservers()
 
+        binding.printBtn.setOnClickListener {
+            lifecycleScope.launch {
+               selectedPrinter?.let {
+                   mainViewModel.print(it)
+               }?: Log.e("Print error", "No printer selected")
+            }
 
+        }
 
         return binding.root
 
     }
 
-
-
-
-
     private fun initList() {
         listAdapter = ListPrinterAdapter()
+
+        listAdapter.setOnItemClickListener(object : ListPrinterAdapter.ClickListener{
+            override fun onItemClick(v: View, position: Int) {
+
+                selectedPrinter = position
+
+                val popup = PopupMenu(requireContext(), v)
+                val inflater: MenuInflater = popup.menuInflater
+                inflater.inflate(R.menu.menu_user_printer, popup.menu)
+                popup.setOnMenuItemClickListener(object : OnMenuItemClickListener,
+                    PopupMenu.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem): Boolean {
+                        return when (item.itemId) {
+                            R.id.menu_action_default -> {
+                                selectedPrinter?.let {
+                                    Log.e("menu_action_remove", "start")
+                                    defaultPrinter = selectedPrinter
+                                    setUserPrinterAsDefault(defaultPrinter)
+                                }
+                                true
+                            }
+                            R.id.menu_action_remove -> {
+                                selectedPrinter?.let {
+                                    Log.e("menu_action_remove", "start")
+                                    renoveUserPrinter(it)
+                                }
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                })
+                popup.show()
+            }
+
+        })
         binding.printerListRcv.apply {
             layoutManager = LinearLayoutManager(requireContext())  // default layoutManager
             adapter = listAdapter
         }
     }
 
+    private fun setUserPrinterAsDefault(defaultPrinter: Int?) {
+        defaultPrinter?.let {
+
+            mainViewModel.setUserPrinterAsDefault(it)
+
+            mainViewModel.getAllUserPrinters()
+        }
+    }
+
     private fun initObservers() {
         mainViewModel.allPrintersLiveData.observe(viewLifecycleOwner) { list ->
             Log.e("allPrintersLD.observe", list.toString())
-
-            listAdapter.submitList(list)
-            checkScreenEmptyList()
+            if (list!=null){
+                listAdapter.submitList(list)
+                listAdapter.notifyDataSetChanged()
+                checkScreenEmptyList()
+            }
         }
     }
 

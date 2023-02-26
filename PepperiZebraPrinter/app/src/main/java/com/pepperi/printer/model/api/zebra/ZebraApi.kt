@@ -30,4 +30,10 @@ class ZebraApi
         }
         return lastlist
     }
+
+    suspend fun bluetoothPrint(mac : String, format : String){
+        when(format){
+            else -> throw Exception("Not Fund print format")
+        }
+    }
 }

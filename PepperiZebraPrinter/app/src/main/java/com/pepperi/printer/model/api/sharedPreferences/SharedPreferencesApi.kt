@@ -1,7 +1,6 @@
 package com.pepperi.printer.model.api.sharedPreferences
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pepperi.printer.model.entities.UserPrinterModel
@@ -13,6 +12,7 @@ class SharedPreferencesApi(private val context: Context) {
 
     //  THe function add user to the sharedPreferences
     fun saveUserPrinter(userPrinterModel: UserPrinterModel){
+
         val printersDataList = getPrintersData()
 
         var newData = ""
@@ -29,6 +29,7 @@ class SharedPreferencesApi(private val context: Context) {
     // THe function load all the saved user printers from sharedPreferences to list
     fun getAllUserPrinters() : ArrayList<UserPrinterModel>{
         return getPrintersData()
+
     }
     // get data from sharedPreferences 
     private fun getPrintersData() : ArrayList<UserPrinterModel>{
@@ -49,4 +50,45 @@ class SharedPreferencesApi(private val context: Context) {
         return userPrinterString
     }
 
+    fun removePrinter(printerIndex: Int){
+        val printersData = getPrintersData()
+
+        if (printersData.isNotEmpty()){
+
+            printersData.removeAt(printerIndex)
+
+            clearSharedPreferences()
+
+            saveListOfPrinter(printersData)
+        }
+    }
+    // used only if sharedPreferences is empty
+    private fun saveListOfPrinter(printersData: java.util.ArrayList<UserPrinterModel>) {
+
+       val newData = ListToStringData(printersData)
+
+        with (sharedPreferences.edit()) {
+            putString("USER_PRINTERS", newData)
+            apply()
+        }
+    }
+
+    fun replacePrinter(replacementPrinterModel: UserPrinterModel, printerIndex: Int) {
+        val printersData = getPrintersData()
+
+        if (printersData.isNotEmpty()){
+
+            printersData[printerIndex] = replacementPrinterModel
+
+            clearSharedPreferences()
+
+            saveListOfPrinter(printersData)
+        }
+    }
+    private fun clearSharedPreferences(){
+        with (sharedPreferences.edit()) {
+            clear()
+            commit()
+        }
+    }
 }
