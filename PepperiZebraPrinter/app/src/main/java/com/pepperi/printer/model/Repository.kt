@@ -10,8 +10,8 @@ class Repository(private val sharedPreferencesApi: SharedPreferencesApi) {
         sharedPreferencesApi.saveUserPrinter(userPrinterModel)
     }
 
-    fun getAllUserPrinter(): ArrayList<UserPrinterModel> {
-       return sharedPreferencesApi.LoadAllUserPrinters()
+    fun getAllUserPrinters(): ArrayList<UserPrinterModel> {
+       return sharedPreferencesApi.getAllUserPrinters()
     }
     fun removePrinter(printerIndex :Int){
         sharedPreferencesApi.removePrinter(printerIndex)

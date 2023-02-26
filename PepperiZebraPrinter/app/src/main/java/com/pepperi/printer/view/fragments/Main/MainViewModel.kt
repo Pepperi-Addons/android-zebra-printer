@@ -15,7 +15,7 @@ class MainViewModel(val repository: Repository) : ViewModel(){
     }
 
     fun getAllUserPrinters(){
-        allPrintersLiveData.value = repository.getAllUserPrinter()
+        allPrintersLiveData.value = repository.getAllUserPrinters()
     }
     fun removeUserPrinter(printerIndex: Int){
         repository.removePrinter(printerIndex)
