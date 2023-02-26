@@ -1,7 +1,6 @@
 package com.pepperi.printer.model.api.sharedPreferences
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
 import com.pepperi.printer.model.entities.UserPrinterModel
@@ -12,17 +11,25 @@ class SharedPreferencesApi(private val context: Context) {
 
     //  THe function add user to the sharedPreferences
     fun saveUserPrinter(userPrinterModel: UserPrinterModel){
-        val printersDataString = getStringPrintersData() //
+        val userPrinterString = printerToStringData(userPrinterModel)
+
+        saveUserPrinterString(userPrinterString)
+    }
+
+    private fun saveUserPrinterString( userPrinterString: String){
+        val printersDataString = getStringPrintersData()
+
         var newData = ""
+
         if (printersDataString != ""){
-            newData = "${printersDataString}**${printerToStringData(userPrinterModel)}" // Adding the sign ** to mark the start of a new user printer
+            newData = "${printersDataString}**${userPrinterString}" // Adding the sign ** to mark the start of a new user printer
         }else {
-            newData = printerToStringData(userPrinterModel)
+            newData = userPrinterString
         }
         with (sharedPreferences.edit()) {
             putString("USER_PRINTERS", newData)
             Log.e("sharedPreferences", "save: ${newData}")
-            apply()
+            commit()
         }
     }
     // THe function load all the saved user printers from sharedPreferences to list
@@ -60,5 +67,46 @@ class SharedPreferencesApi(private val context: Context) {
         Log.e("Gson", userPrinterString)
         return userPrinterString
     }
+    fun removePrinter(printerIndex: Int){
+        val printersDataString = getStringPrintersData()
 
+        if (printersDataString != ""){
+
+            val printersDataStringArray =
+                printersDataString.split("**") //  split the data by  ** to create string array of user printers
+
+            clearSharedPreferences()
+
+            for (i in 0 until printersDataStringArray.size){
+                if (i != printerIndex){
+                    saveUserPrinterString(printersDataStringArray[i])
+                }
+            }
+        }
+    }
+    fun replacePrinter( substitutePrinterModel: UserPrinterModel, printerIndex: Int) {
+        val printersDataString = getStringPrintersData()
+
+        if (printersDataString != "") {
+
+            val printersDataStringArray =
+                printersDataString.split("**") //  split the data by  ** to create string array of user printers
+
+            clearSharedPreferences()
+
+            for (i in 0 until printersDataStringArray.size) {
+                if (i != printerIndex) {
+                    saveUserPrinterString(printersDataStringArray[i])
+                }else{
+                    saveUserPrinter(substitutePrinterModel)
+                }
+            }
+        }
+    }
+    private fun clearSharedPreferences(){
+        with (sharedPreferences.edit()) {
+            clear()
+            commit()
+        }
+    }
 }
