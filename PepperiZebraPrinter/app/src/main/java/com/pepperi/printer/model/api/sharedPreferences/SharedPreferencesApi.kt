@@ -42,14 +42,12 @@ class SharedPreferencesApi(private val context: Context) {
         if (stringData != ""){
             returnedList = Gson().fromJson(stringData, myType);
         }
-        Log.e("getPrintersData", returnedList.toString())
         return returnedList
     }
     // The function return string data from UserPrinterModel object by using GSON
     private fun ListToStringData(listUserPrinter: ArrayList<UserPrinterModel>) :String{
         val gson = Gson()
         val userPrinterString: String = gson.toJson(listUserPrinter)
-        Log.e("ListToStringData", userPrinterString)
         return userPrinterString
     }
     fun removePrinter(printerIndex: Int){
