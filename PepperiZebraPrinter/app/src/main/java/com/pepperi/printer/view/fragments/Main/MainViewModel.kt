@@ -1,6 +1,5 @@
 package com.appa.viewModel
 
-import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pepperi.printer.model.Repository
@@ -16,7 +15,7 @@ class MainViewModel(val repository: Repository) : ViewModel(){
     }
 
     fun getAllUserPrinters(){
-        allPrintersLiveData.value = repository.getAllUserPrinter()
+        allPrintersLiveData.value = repository.getAllUserPrinters()
     }
 }
 
