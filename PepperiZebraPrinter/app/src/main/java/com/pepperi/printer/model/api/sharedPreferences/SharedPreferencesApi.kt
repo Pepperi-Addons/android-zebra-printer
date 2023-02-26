@@ -32,7 +32,7 @@ class SharedPreferencesApi(private val context: Context) {
         return getPrintersData()
 
     }
-    // get data from sharedPreferences (arrived by string format)
+    // get data from sharedPreferences 
     private fun getPrintersData() : ArrayList<UserPrinterModel>{
         var returnedList = arrayListOf<UserPrinterModel>()
 

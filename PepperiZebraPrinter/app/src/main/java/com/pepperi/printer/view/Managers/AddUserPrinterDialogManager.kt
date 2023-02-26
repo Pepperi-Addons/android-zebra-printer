@@ -8,6 +8,7 @@ import android.widget.Spinner
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import com.pepperi.printer.R
+import com.pepperi.printer.model.PrintFormat
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.fragments.AddPrinters.AddPrintersFragment
 import com.pepperi.printer.view.fragments.AddPrinters.AddPrintersViewModel
@@ -75,7 +76,7 @@ class AddUserPrinterDialogManager(val fragment: AddPrintersFragment,val viewMode
     private fun setSpinnerAdapter(): ArrayAdapter<String> {
         val spinnerArrayAdapter = ArrayAdapter<String>(
             fragment.requireContext(), android.R.layout.simple_spinner_item,
-            arrayListOf("ZPL (PDF)","ZPL","ESC/POS")
+            arrayListOf(PrintFormat.PDF.format, PrintFormat.ZPL.format, PrintFormat.ESC_PSC.format)
         ) //selected item will look like a spinner set from XML
 
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
