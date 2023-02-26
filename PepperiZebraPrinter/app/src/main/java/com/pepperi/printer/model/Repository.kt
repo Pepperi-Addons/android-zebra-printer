@@ -16,7 +16,7 @@ class Repository(private val sharedPreferencesApi: SharedPreferencesApi) {
     fun removePrinter(printerIndex :Int){
         sharedPreferencesApi.removePrinter(printerIndex)
     }
-    fun replacePrinter(substitutePrinterModel: UserPrinterModel, printerIndex: Int){
-        sharedPreferencesApi.replacePrinter(substitutePrinterModel, printerIndex)
+    fun replacePrinter(replacementPrinterModel: UserPrinterModel, printerIndex: Int){
+        sharedPreferencesApi.replacePrinter(replacementPrinterModel, printerIndex)
     }
 }

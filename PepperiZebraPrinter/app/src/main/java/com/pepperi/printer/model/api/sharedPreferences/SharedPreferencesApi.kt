@@ -73,12 +73,12 @@ class SharedPreferencesApi(private val context: Context) {
         }
     }
 
-    fun replacePrinter( substitutePrinterModel: UserPrinterModel, printerIndex: Int) {
+    fun replacePrinter(replacementPrinterModel: UserPrinterModel, printerIndex: Int) {
         val printersData = getPrintersData()
 
         if (printersData.isNotEmpty()){
 
-            printersData[printerIndex] = substitutePrinterModel
+            printersData[printerIndex] = replacementPrinterModel
 
             clearSharedPreferences()
 
