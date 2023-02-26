@@ -1,7 +1,6 @@
 package com.pepperi.printer.model.api.sharedPreferences
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pepperi.printer.model.entities.UserPrinterModel
@@ -50,40 +49,40 @@ class SharedPreferencesApi(private val context: Context) {
         val userPrinterString: String = gson.toJson(listUserPrinter)
         return userPrinterString
     }
+
     fun removePrinter(printerIndex: Int){
-        val printersDataString = getStringPrintersData()
+        val printersData = getPrintersData()
 
-        if (printersDataString != ""){
+        if (printersData.isNotEmpty()){
 
-            val printersDataStringArray =
-                printersDataString.split("**") //  split the data by  ** to create string array of user printers
+            printersData.removeAt(printerIndex)
 
             clearSharedPreferences()
 
-            for (i in 0 until printersDataStringArray.size){
-                if (i != printerIndex){
-                    saveUserPrinterString(printersDataStringArray[i])
-                }
-            }
+            saveListOfPrinter(printersData)
         }
     }
+    // used only if sharedPreferences is empty
+    private fun saveListOfPrinter(printersData: java.util.ArrayList<UserPrinterModel>) {
+
+       val newData = ListToStringData(printersData)
+
+        with (sharedPreferences.edit()) {
+            putString("USER_PRINTERS", newData)
+            apply()
+        }
+    }
+
     fun replacePrinter( substitutePrinterModel: UserPrinterModel, printerIndex: Int) {
-        val printersDataString = getStringPrintersData()
+        val printersData = getPrintersData()
 
-        if (printersDataString != "") {
+        if (printersData.isNotEmpty()){
 
-            val printersDataStringArray =
-                printersDataString.split("**") //  split the data by  ** to create string array of user printers
+            printersData[printerIndex] = substitutePrinterModel
 
             clearSharedPreferences()
 
-            for (i in 0 until printersDataStringArray.size) {
-                if (i != printerIndex) {
-                    saveUserPrinterString(printersDataStringArray[i])
-                }else{
-                    saveUserPrinter(substitutePrinterModel)
-                }
-            }
+            saveListOfPrinter(printersData)
         }
     }
     private fun clearSharedPreferences(){

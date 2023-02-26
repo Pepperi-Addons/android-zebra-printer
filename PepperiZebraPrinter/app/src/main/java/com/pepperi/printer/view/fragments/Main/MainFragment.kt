@@ -17,9 +17,6 @@ import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
-import com.zebra.sdk.comm.BluetoothConnectionInsecure
-import com.zebra.sdk.comm.Connection
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -96,7 +93,9 @@ class MainFragment : Fragment() {
 
         binding.printBtn.setOnClickListener {
             lifecycleScope.launch {
-                printB()
+               selectedPrinter?.let {
+                   mainViewModel.print(it)
+               }?: Log.e("Print error", "No printer selected")
             }
 
         }
@@ -104,32 +103,6 @@ class MainFragment : Fragment() {
         return binding.root
 
     }
-
-    private  suspend fun printB() {
-        try {
-            val thePrinterConn: Connection = BluetoothConnectionInsecure("AC:3F:A4:4B:50:83")
-            coroutineScope() {
-                // Open the connection - physical connection is established here.
-                // Open the connection - physical connection is established here.
-                thePrinterConn.open()
-                Log.e("thePrinterConn", "start")
-                // This example prints "This is a ZPL test." near the top of the label.
-
-                // This example prints "This is a ZPL test." near the top of the label.
-                val zplData = "^XA^FO20,20^A0N,25,25^FDThis is a ZPL test.^FS^XZ"
-
-                // Send the data to printer as a byte array.
-
-                // Send the data to printer as a byte array.
-                thePrinterConn.write(zplData.toByteArray())
-            }
-            Log.e("thePrinterConn", "close")
-            thePrinterConn.close()
-        }catch (e : Exception){
-            Log.e("printException", e.stackTraceToString())
-        }
-    }
-
 
     private fun initList() {
         listAdapter = ListPrinterAdapter()
