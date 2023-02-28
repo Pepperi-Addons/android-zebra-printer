@@ -1,29 +1,33 @@
 package com.appa.viewModel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pepperi.printer.model.PrintFormat
 import com.pepperi.printer.model.Repository
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.zebra.sdk.comm.BluetoothConnectionInsecure
 import com.zebra.sdk.comm.Connection
+import com.zebra.sdk.printer.ZebraPrinterFactory
 import kotlinx.coroutines.coroutineScope
+import java.io.File
 
 
 class MainViewModel(val repository: Repository) : ViewModel(){
 
     var allPrintersLiveData : MutableLiveData<List<UserPrinterModel>?> =  MutableLiveData<List<UserPrinterModel>?>()
+    var userDefaultPrinter : Int? =  null
 
     init {
         getAllUserPrinters()
+        userDefaultPrinter =  getDefaultPrinter()
     }
 
     fun getAllUserPrinters(){
         allPrintersLiveData.value = repository.getAllUserPrinters()
     }
     fun removeUserPrinter(printerIndex: Int){
-        repository.removePrinter(printerIndex)
+        repository.removePrinter(allPrintersLiveData.value?.get(printerIndex)?.mac ?:"")
     }
 
     fun setUserPrinterAsDefault( printerIndex: Int){
@@ -35,7 +39,7 @@ class MainViewModel(val repository: Repository) : ViewModel(){
 
             userPrinter.isDefault = true
 
-            repository.replacePrinter(userPrinter,printerIndex)
+            repository.replacePrinter(userPrinter, allPrintersLiveData.value?.get(printerIndex)?.mac ?:"")
         }
 
     }
@@ -43,19 +47,41 @@ class MainViewModel(val repository: Repository) : ViewModel(){
         return allPrintersLiveData.value?.get(printerIndex)
     }
     private fun resetDefaultUser(){
+
+        removeAllPrinters()
+
         allPrintersLiveData.value?.let { list ->
             for (i in 0 until list.size ){
                 list[i].isDefault = false
+                repository.saveUserPrinter(list[i])
             }
         }
+
+        getAllUserPrinters()
     }
 
-      suspend fun print(selectedPrinter: Int) {
+    private fun getDefaultPrinter(): Int? {
+
+        var returnedIndex : Int? = null
+
+        allPrintersLiveData.value?.let { list ->
+            for (i in 0 until list.size ){
+                if (list[i].isDefault == true){
+                    returnedIndex = i
+                }
+            }
+        }
+        return returnedIndex
+    }
+
+    private fun removeAllPrinters(){
+        repository.removeAllPrinters()
+    }
+      suspend fun printZPL(macAddress: String, data : String) {
         try {
             val thePrinterConn: Connection = BluetoothConnectionInsecure(
-                allPrintersLiveData.value?.get(selectedPrinter)?.mac
-                ?:"" )
-            coroutineScope() {
+                macAddress )
+            coroutineScope {
                 // Open the connection - physical connection is established here.
                 // Open the connection - physical connection is established here.
                 thePrinterConn.open()
@@ -63,7 +89,7 @@ class MainViewModel(val repository: Repository) : ViewModel(){
                 // This example prints "This is a ZPL test." near the top of the label.
 
                 // This example prints "This is a ZPL test." near the top of the label.
-                val zplData = "^XA^FO20,20^A0N,25,25^FDThis is a ZPL test.^FS^XZ"
+                val zplData = "data.toByteArray().decodeToString()"
 
                 // Send the data to printer as a byte array.
 
@@ -71,10 +97,48 @@ class MainViewModel(val repository: Repository) : ViewModel(){
                 thePrinterConn.write(zplData.toByteArray())
             }
             Log.e("thePrinterConn", "close")
-            thePrinterConn.close()
+//            thePrinterConn.close()
         }catch (e : Exception){
             Log.e("printException", e.stackTraceToString())
         }
+    }
+
+    suspend fun print(macAddress: String,  pdfFile: File) {
+        try {
+            val thePrinterConn: Connection = BluetoothConnectionInsecure(
+                macAddress )
+            coroutineScope() {
+                // Open the connection - physical connection is established here.
+                if (!thePrinterConn.isConnected()) {
+                    thePrinterConn.open();
+                }
+
+                // Get Instance of Printer
+                val printer = ZebraPrinterFactory.getLinkOsPrinter(thePrinterConn);
+
+                // Verify Printer Status is Ready
+                val printerStatus = printer.getCurrentStatus();
+                if (printerStatus.isReadyToPrint) {
+                    // Send the data to printer as a byte array.
+                    printer.sendFileContents(pdfFile.getAbsolutePath())
+                }
+            }
+            Log.e("thePrinterConn", "close")
+//            thePrinterConn.close()
+        }catch (e : Exception){
+            Log.e("printException", e.stackTraceToString())
+        }
+    }
+    fun gethardPDF(): String{
+
+        return "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
+    }
+
+    fun gethardPDFURI(): Uri{
+        //data:application/vnd.hp-PCL;BASE64,SGVsbG8gV29ybGQ=
+        //data:x-application/zpl;BASE64,SGVsbG8gV29ybGQ=
+        //data:application/pdf;BASE64,
+        return Uri.parse("content://print?data=data:application/pdf;BASE64,JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G")
     }
 }
 

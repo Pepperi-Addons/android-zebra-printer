@@ -15,6 +15,8 @@ class BluetoothPermissionManager(val fragment: Fragment) {
     private var isBluetoothConnectPermissionGranted = false
     private var isBluetoothAdvertisePermissionGranted = false
 
+    private var isPermissionGranted = false
+
     private lateinit var permissionLauncher : ActivityResultLauncher<Array<String>>
 
     fun requestPermissions(){
@@ -38,6 +40,28 @@ class BluetoothPermissionManager(val fragment: Fragment) {
                        ?: isBluetoothAdvertisePermissionGranted
            } else {
                Log.e("PermissionGranted", "older permission needed")
+           }
+
+           if (isBluetoothScanPermissionGranted){
+               Log.e("isBluetoothScanPermissionGranted", "OK")
+               isPermissionGranted = true
+           }else{
+               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
+               isPermissionGranted = false
+           }
+           if (isBluetoothConnectPermissionGranted){
+               Log.e("isBluetoothScanPermissionGranted", "OK")
+               isPermissionGranted = true
+           }else{
+               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
+               isPermissionGranted = false
+           }
+           if (isBluetoothAdvertisePermissionGranted){
+               Log.e("isBluetoothScanPermissionGranted", "OK")
+               isPermissionGranted = true
+           }else{
+               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
+               isPermissionGranted = false
            }
        }
    }
@@ -83,5 +107,9 @@ class BluetoothPermissionManager(val fragment: Fragment) {
         if (permissionRequest.isNotEmpty()){
             permissionLauncher.launch(permissionRequest.toTypedArray())
         }
+    }
+
+    fun getPermissionsGranted() :Boolean{
+        return isPermissionGranted
     }
 }

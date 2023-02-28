@@ -17,7 +17,11 @@ class SharedPreferencesApi(private val context: Context) {
 
         var newData = ""
 
-        printersDataList.add(userPrinterModel)
+        if(!isPrinterExist(printersDataList, userPrinterModel.mac)){
+            printersDataList.add(userPrinterModel)
+        }else {
+            replacePrinter(userPrinterModel,userPrinterModel.mac)
+        }
 
         newData = ListToStringData(printersDataList)
 
@@ -26,6 +30,18 @@ class SharedPreferencesApi(private val context: Context) {
             apply()
         }
     }
+
+    private fun isPrinterExist(printersDataList: ArrayList<UserPrinterModel>, mac: String): Boolean {
+        var returnAnswer = false
+
+        for (i in 0 until printersDataList.size){
+            if (printersDataList[i].mac == mac){
+                returnAnswer = true
+            }
+        }
+        return returnAnswer
+    }
+
     // THe function load all the saved user printers from sharedPreferences to list
     fun getAllUserPrinters() : ArrayList<UserPrinterModel>{
         return getPrintersData()
@@ -50,12 +66,16 @@ class SharedPreferencesApi(private val context: Context) {
         return userPrinterString
     }
 
-    fun removePrinter(printerIndex: Int){
+    fun removePrinter(mac: String){
         val printersData = getPrintersData()
 
         if (printersData.isNotEmpty()){
 
-            printersData.removeAt(printerIndex)
+            for (i in 0 until printersData.size){
+                if (printersData[i].mac == mac){
+                    printersData.removeAt(i)
+                }
+            }
 
             clearSharedPreferences()
 
@@ -73,19 +93,23 @@ class SharedPreferencesApi(private val context: Context) {
         }
     }
 
-    fun replacePrinter(replacementPrinterModel: UserPrinterModel, printerIndex: Int) {
+    fun replacePrinter(replacementPrinterModel: UserPrinterModel, mac: String) {
         val printersData = getPrintersData()
 
         if (printersData.isNotEmpty()){
 
-            printersData[printerIndex] = replacementPrinterModel
+            for (i in 0 until printersData.size){
+                if (printersData[i].mac == mac){
+                    printersData[i] = replacementPrinterModel
+                }
+            }
 
             clearSharedPreferences()
 
             saveListOfPrinter(printersData)
         }
     }
-    private fun clearSharedPreferences(){
+     fun clearSharedPreferences(){
         with (sharedPreferences.edit()) {
             clear()
             commit()

@@ -1,6 +1,8 @@
 package com.pepperi.printer.view.fragments.Main
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.PopupMenu
@@ -15,16 +17,18 @@ import com.pepperi.printer.R
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.view.Managers.BluetoothPermissionManager
+import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-const val BLUETOOTH_PERMISSION = 100
-
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
@@ -35,7 +39,7 @@ class MainFragment : Fragment() {
 
     private lateinit var listAdapter: ListPrinterAdapter
     private var selectedPrinter :Int? = null
-    private var defaultPrinter :Int? = null
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -51,31 +55,18 @@ class MainFragment : Fragment() {
         viewModelFactory = ViewModelFactory(userApplication.repository)
         mainViewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
 
-    }
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_user_printer, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_action_default -> true
-            R.id.menu_action_remove -> {
-                selectedPrinter?.let {
-                    Log.e("menu_action_remove", "start")
-                    renoveUserPrinter(it)
-                }
-                true
+        val action = activity?.intent?.action
+        val data = activity?.intent?.data
+
+        action?.let { _action ->
+            data?.let{ _data ->
+
+                printData(_data)
+
             }
-            else -> super.onOptionsItemSelected(item)
         }
-    }
 
-    private fun renoveUserPrinter(selectedPrinter: Int) {
-
-        mainViewModel.removeUserPrinter(selectedPrinter)
-
-        mainViewModel.getAllUserPrinters()
     }
 
     override fun onCreateView(
@@ -93,11 +84,8 @@ class MainFragment : Fragment() {
 
         binding.printBtn.setOnClickListener {
             lifecycleScope.launch {
-               selectedPrinter?.let {
-                   mainViewModel.print(it)
-               }?: Log.e("Print error", "No printer selected")
+                mainViewModel.print(mainViewModel.allPrintersLiveData.value!![mainViewModel.userDefaultPrinter!!].mac,getFile(mainViewModel.gethardPDF()))
             }
-
         }
 
         return binding.root
@@ -122,15 +110,15 @@ class MainFragment : Fragment() {
                             R.id.menu_action_default -> {
                                 selectedPrinter?.let {
                                     Log.e("menu_action_remove", "start")
-                                    defaultPrinter = selectedPrinter
-                                    setUserPrinterAsDefault(defaultPrinter)
+                                    mainViewModel.userDefaultPrinter = selectedPrinter
+                                    setUserPrinterAsDefault(mainViewModel.userDefaultPrinter)
                                 }
                                 true
                             }
                             R.id.menu_action_remove -> {
                                 selectedPrinter?.let {
                                     Log.e("menu_action_remove", "start")
-                                    renoveUserPrinter(it)
+                                    removeUserPrinter(it)
                                 }
                                 true
                             }
@@ -146,6 +134,15 @@ class MainFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())  // default layoutManager
             adapter = listAdapter
         }
+    }
+
+    private fun removeUserPrinter(selectedPrinter: Int) {
+
+        mainViewModel.removeUserPrinter(selectedPrinter)
+
+        listAdapter.notifyItemRemoved(selectedPrinter)
+
+        mainViewModel.getAllUserPrinters()
     }
 
     private fun setUserPrinterAsDefault(defaultPrinter: Int?) {
@@ -196,5 +193,65 @@ class MainFragment : Fragment() {
         super.onResume()
 
         mainViewModel.getAllUserPrinters()
+    }
+
+    private fun printData(data: Uri) {
+
+        mainViewModel.userDefaultPrinter?.let { defaultPrinter ->
+
+            val parameters = data.queryParameterNames.associateWith { data.getQueryParameters(it) }
+
+            val printerDialogManager = PrintDialogManager(this,mainViewModel)
+
+            val dataURI = parameters["dataURI"]?.get(0).toString()
+
+            val dataToPrint = getDataToPrint(dataURI)
+
+            printerDialogManager.showDialog("Printing: ${dataToPrint.toByteArray().decodeToString()}")
+
+            if (dataURI.contains("x-application/zpl")
+                || dataURI.contains("application/vnd.hp-PCL")){
+
+                lifecycleScope.launch{
+                    mainViewModel.printZPL(mainViewModel.allPrintersLiveData.value!![defaultPrinter].mac,dataToPrint)
+                }
+
+            }else if(dataURI.contains("application/pdf")) {
+                lifecycleScope.launch{
+                    mainViewModel.print(mainViewModel.allPrintersLiveData.value!![defaultPrinter].mac,getFile(dataToPrint))
+                }
+            } else {
+
+            }
+        }?: Log.e("Print error", "No printer selected")
+    }
+
+    fun getFile(dataPrint:String) : File{
+        val path = requireActivity().filesDir
+        val file = File(path, "test_pdf.pdf")
+        try {
+            Log.e("getFile",file.path)
+            val outputStreamWriter = FileOutputStream(file)
+            val decodedString = Base64.decode(dataPrint, Base64.DEFAULT)
+            outputStreamWriter.write(decodedString)
+            outputStreamWriter.close()
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: $e")
+        }
+        return file
+
+    }
+
+    private fun getDataToPrint(dataURI: String): String {
+
+        val dataArryeHelper = dataURI.split(",")
+
+        var dataStringHelper = ""
+
+        for (i in 1 until dataArryeHelper.size){
+            dataStringHelper += dataArryeHelper[i]
+        }
+
+        return dataStringHelper
     }
 }
