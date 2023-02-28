@@ -43,24 +43,18 @@ class BluetoothPermissionManager(val fragment: Fragment) {
            }
 
            if (isBluetoothScanPermissionGranted){
-               Log.e("isBluetoothScanPermissionGranted", "OK")
                isPermissionGranted = true
            }else{
-               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
                isPermissionGranted = false
            }
            if (isBluetoothConnectPermissionGranted){
-               Log.e("isBluetoothScanPermissionGranted", "OK")
                isPermissionGranted = true
            }else{
-               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
                isPermissionGranted = false
            }
            if (isBluetoothAdvertisePermissionGranted){
-               Log.e("isBluetoothScanPermissionGranted", "OK")
                isPermissionGranted = true
            }else{
-               Log.e("isBluetoothScanPermissionGranted", "OK_NOT")
                isPermissionGranted = false
            }
        }

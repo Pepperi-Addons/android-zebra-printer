@@ -82,11 +82,6 @@ class MainFragment : Fragment() {
 
         initObservers()
 
-        binding.printBtn.setOnClickListener {
-            lifecycleScope.launch {
-                mainViewModel.print(mainViewModel.allPrintersLiveData.value!![mainViewModel.userDefaultPrinter!!].mac,getFile(mainViewModel.gethardPDF()))
-            }
-        }
 
         return binding.root
 

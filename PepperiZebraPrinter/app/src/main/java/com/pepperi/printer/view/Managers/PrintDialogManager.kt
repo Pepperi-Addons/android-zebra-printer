@@ -52,10 +52,6 @@ class PrintDialogManager(val fragment: MainFragment, val viewModel: MainViewMode
             onClick()
         }
 
-        fragment.lifecycleScope.launch {
-//            renderPdf(base64EncodedString)
-        }
-
         pdf_print.text = text
     }
 
@@ -65,19 +61,6 @@ class PrintDialogManager(val fragment: MainFragment, val viewModel: MainViewMode
         dialog.dismiss()
     }
 
-    private suspend fun renderPdf(base64EncodedString: String,pdfFile :File?) {
-        coroutineScope {
-            try {
-                val decodedString = Base64.decode(base64EncodedString, Base64.DEFAULT)
-                Log.e("renderPdf", decodedString.decodeToString())
-//                pdfView_pvi.fromBytes(decodedString).load()
-                pdfView_pvi.fromFile(pdfFile).load()
-            } catch (e: Exception) {
-                // handle error
-                Log.e("renderPdf", e.stackTraceToString())
-            }
-        }
-    }
 
     private fun dialogSetting(){
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
