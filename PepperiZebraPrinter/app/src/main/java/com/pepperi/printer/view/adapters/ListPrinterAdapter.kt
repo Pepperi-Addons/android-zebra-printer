@@ -38,7 +38,7 @@ open class ListPrinterAdapter :
             override fun onClick(view: View?) {
                 Log.e("onClick","adapterPosition ${adapterPosition} , $view.id}")
                 if (view != null) {
-                    clickListener?.onItemClick(view, adapterPosition)
+                    clickListener?.onItemClick(view, getItem(adapterPosition))
                     Log.e("onClick","adapterPosition ${adapterPosition} , $view.id}")
                 }
             }
@@ -57,7 +57,7 @@ open class ListPrinterAdapter :
     }
 
     interface ClickListener {
-        fun onItemClick(v: View, position: Int)
+        fun onItemClick(v: View, userPrinter: UserPrinterModel)
     }
 }
 

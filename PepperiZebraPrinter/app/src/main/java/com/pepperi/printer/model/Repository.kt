@@ -17,9 +17,6 @@ class Repository(private val sharedPreferencesApi: SharedPreferencesApi) {
     fun removePrinter(macAddress: String){
         sharedPreferencesApi.removePrinter(macAddress)
     }
-    fun replacePrinter(replacementPrinterModel: UserPrinterModel, macAddress: String){
-        sharedPreferencesApi.replacePrinter(replacementPrinterModel, macAddress)
-    }
     fun removeAllPrinters(){
         sharedPreferencesApi.clearSharedPreferences()
     }

@@ -16,6 +16,7 @@ import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
+import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
@@ -38,7 +39,7 @@ class MainFragment : Fragment() {
     private lateinit var userApplication: UserApplication
 
     private lateinit var listAdapter: ListPrinterAdapter
-    private var selectedPrinter :Int? = null
+    private var selectedPrinter :String? = null
 
 
     // This property is only valid between onCreateView and
@@ -61,12 +62,14 @@ class MainFragment : Fragment() {
 
         action?.let { _action ->
             data?.let{ _data ->
-
                 printData(_data)
-
             }
         }
 
+    }
+
+    private fun printData(_data: Uri) {
+        printData(_data)
     }
 
     override fun onCreateView(
@@ -91,9 +94,7 @@ class MainFragment : Fragment() {
         listAdapter = ListPrinterAdapter()
 
         listAdapter.setOnItemClickListener(object : ListPrinterAdapter.ClickListener{
-            override fun onItemClick(v: View, position: Int) {
-
-                selectedPrinter = position
+            override fun onItemClick(v: View, userPrinter: UserPrinterModel) {
 
                 val popup = PopupMenu(requireContext(), v)
                 val inflater: MenuInflater = popup.menuInflater
@@ -103,18 +104,13 @@ class MainFragment : Fragment() {
                     override fun onMenuItemClick(item: MenuItem): Boolean {
                         return when (item.itemId) {
                             R.id.menu_action_default -> {
-                                selectedPrinter?.let {
-                                    Log.e("menu_action_remove", "start")
-                                    mainViewModel.userDefaultPrinter = selectedPrinter
-                                    setUserPrinterAsDefault(mainViewModel.userDefaultPrinter)
-                                }
+
+                                    mainViewModel.userDefaultPrinter = userPrinter
+                                    setUserPrinterAsDefault(userPrinter)
                                 true
                             }
                             R.id.menu_action_remove -> {
-                                selectedPrinter?.let {
-                                    Log.e("menu_action_remove", "start")
-                                    removeUserPrinter(it)
-                                }
+                                    removeUserPrinter(userPrinter)
                                 true
                             }
                             else -> false
@@ -131,19 +127,18 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun removeUserPrinter(selectedPrinter: Int) {
+    private fun removeUserPrinter(userPrinter: UserPrinterModel) {
 
-        mainViewModel.removeUserPrinter(selectedPrinter)
+        mainViewModel.removeUserPrinter(userPrinter)
 
-        listAdapter.notifyItemRemoved(selectedPrinter)
 
         mainViewModel.getAllUserPrinters()
     }
 
-    private fun setUserPrinterAsDefault(defaultPrinter: Int?) {
+    private fun setUserPrinterAsDefault(defaultPrinter: UserPrinterModel) {
         defaultPrinter?.let {
 
-            mainViewModel.setUserPrinterAsDefault(it)
+            mainViewModel.setUserPrinterAsDefault(defaultPrinter)
 
             mainViewModel.getAllUserPrinters()
         }
@@ -190,63 +185,4 @@ class MainFragment : Fragment() {
         mainViewModel.getAllUserPrinters()
     }
 
-    private fun printData(data: Uri) {
-
-        mainViewModel.userDefaultPrinter?.let { defaultPrinter ->
-
-            val parameters = data.queryParameterNames.associateWith { data.getQueryParameters(it) }
-
-            val printerDialogManager = PrintDialogManager(this,mainViewModel)
-
-            val dataURI = parameters["dataURI"]?.get(0).toString()
-
-            val dataToPrint = getDataToPrint(dataURI)
-
-            printerDialogManager.showDialog("Printing: ${dataToPrint.toByteArray().decodeToString()}")
-
-            if (dataURI.contains("x-application/zpl")
-                || dataURI.contains("application/vnd.hp-PCL")){
-
-                lifecycleScope.launch{
-                    mainViewModel.printZPL(mainViewModel.allPrintersLiveData.value!![defaultPrinter].mac,dataToPrint)
-                }
-
-            }else if(dataURI.contains("application/pdf")) {
-                lifecycleScope.launch{
-                    mainViewModel.print(mainViewModel.allPrintersLiveData.value!![defaultPrinter].mac,getFile(dataToPrint))
-                }
-            } else {
-
-            }
-        }?: Log.e("Print error", "No printer selected")
-    }
-
-    fun getFile(dataPrint:String) : File{
-        val path = requireActivity().filesDir
-        val file = File(path, "test_pdf.pdf")
-        try {
-            Log.e("getFile",file.path)
-            val outputStreamWriter = FileOutputStream(file)
-            val decodedString = Base64.decode(dataPrint, Base64.DEFAULT)
-            outputStreamWriter.write(decodedString)
-            outputStreamWriter.close()
-        } catch (e: IOException) {
-            Log.e("Exception", "File write failed: $e")
-        }
-        return file
-
-    }
-
-    private fun getDataToPrint(dataURI: String): String {
-
-        val dataArryeHelper = dataURI.split(",")
-
-        var dataStringHelper = ""
-
-        for (i in 1 until dataArryeHelper.size){
-            dataStringHelper += dataArryeHelper[i]
-        }
-
-        return dataStringHelper
-    }
 }

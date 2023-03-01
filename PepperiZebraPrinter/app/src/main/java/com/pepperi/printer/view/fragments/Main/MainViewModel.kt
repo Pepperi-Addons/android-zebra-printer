@@ -1,21 +1,17 @@
 package com.appa.viewModel
 
-import android.util.Log
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pepperi.printer.model.Repository
+import com.pepperi.printer.model.api.zebra.ZebraApi
 import com.pepperi.printer.model.entities.UserPrinterModel
-import com.zebra.sdk.comm.BluetoothConnectionInsecure
-import com.zebra.sdk.comm.Connection
-import com.zebra.sdk.printer.ZebraPrinterFactory
-import kotlinx.coroutines.coroutineScope
-import java.io.File
 
 
-class MainViewModel(val repository: Repository) : ViewModel(){
+class MainViewModel(private val repository: Repository,private val zebraApi: ZebraApi) : ViewModel(){
 
     var allPrintersLiveData : MutableLiveData<List<UserPrinterModel>?> =  MutableLiveData<List<UserPrinterModel>?>()
-    var userDefaultPrinter : Int? =  null
+    var userDefaultPrinter : UserPrinterModel? =  null
 
     init {
         getAllUserPrinters()
@@ -25,25 +21,18 @@ class MainViewModel(val repository: Repository) : ViewModel(){
     fun getAllUserPrinters(){
         allPrintersLiveData.value = repository.getAllUserPrinters()
     }
-    fun removeUserPrinter(printerIndex: Int){
-        repository.removePrinter(allPrintersLiveData.value?.get(printerIndex)?.mac ?:"")
+    fun removeUserPrinter(userPrinter: UserPrinterModel){
+        repository.removePrinter(userPrinter.mac)
     }
 
-    fun setUserPrinterAsDefault( printerIndex: Int){
+    fun setUserPrinterAsDefault(userPrinter: UserPrinterModel){
 
-        val userPrinterModel = getUserPrinterByIndex(printerIndex)
-
-        userPrinterModel?.let{ userPrinter ->
             resetDefaultUser()
 
             userPrinter.isDefault = true
 
-            repository.replacePrinter(userPrinter, allPrintersLiveData.value?.get(printerIndex)?.mac ?:"")
-        }
+            repository.saveUserPrinter(userPrinter)
 
-    }
-    fun getUserPrinterByIndex(printerIndex: Int): UserPrinterModel? {
-        return allPrintersLiveData.value?.get(printerIndex)
     }
     private fun resetDefaultUser(){
 
@@ -59,68 +48,29 @@ class MainViewModel(val repository: Repository) : ViewModel(){
         getAllUserPrinters()
     }
 
-    private fun getDefaultPrinter(): Int? {
+    private fun getDefaultPrinter(): UserPrinterModel? {
 
-        var returnedIndex : Int? = null
+        var userPrinterDefault : UserPrinterModel? = null
 
         allPrintersLiveData.value?.let { list ->
             for (i in 0 until list.size ){
                 if (list[i].isDefault == true){
-                    returnedIndex = i
+                    userPrinterDefault = list[i]
                 }
             }
         }
-        return returnedIndex
+        return userPrinterDefault
     }
 
     private fun removeAllPrinters(){
         repository.removeAllPrinters()
     }
-      suspend fun printZPL(macAddress: String, data : String) {
-        try {
-            val thePrinterConn: Connection = BluetoothConnectionInsecure(
-                macAddress )
-            coroutineScope {
-                // Open the connection - physical connection is established here.
-                thePrinterConn.open()
-                // This example prints "This is a ZPL test." near the top of the label.
 
-                // This example prints "This is a ZPL test." near the top of the label.
-                val zplData = "data.toByteArray().decodeToString()"
-
-                // Send the data to printer as a byte array.
-
-                // Send the data to printer as a byte array.
-                thePrinterConn.write(zplData.toByteArray())
-            }
-        }catch (e : Exception){
-            Log.e("printException", e.stackTraceToString())
+    fun printData(data : Uri){
+        userDefaultPrinter?.let {
+            zebraApi.printData(data,it)
         }
-    }
 
-    suspend fun print(macAddress: String,  pdfFile: File) {
-        try {
-            val thePrinterConn: Connection = BluetoothConnectionInsecure(
-                macAddress )
-            coroutineScope() {
-                // Open the connection - physical connection is established here.
-                if (!thePrinterConn.isConnected()) {
-                    thePrinterConn.open();
-                }
-
-                // Get Instance of Printer
-                val printer = ZebraPrinterFactory.getLinkOsPrinter(thePrinterConn);
-
-                // Verify Printer Status is Ready
-                val printerStatus = printer.getCurrentStatus();
-                if (printerStatus.isReadyToPrint) {
-                    // Send the data to printer as a byte array.
-                    printer.sendFileContents(pdfFile.getAbsolutePath())
-                }
-            }
-        }catch (e : Exception){
-            Log.e("printException", e.stackTraceToString())
-        }
     }
 }
 

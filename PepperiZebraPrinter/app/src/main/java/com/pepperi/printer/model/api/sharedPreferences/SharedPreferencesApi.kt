@@ -19,15 +19,15 @@ class SharedPreferencesApi(private val context: Context) {
 
         if(!isPrinterExist(printersDataList, userPrinterModel.mac)){
             printersDataList.add(userPrinterModel)
+
+            newData = ListToStringData(printersDataList)
+
+            with (sharedPreferences.edit()) {
+                putString("USER_PRINTERS", newData)
+                apply()
+            }
         }else {
             replacePrinter(userPrinterModel,userPrinterModel.mac)
-        }
-
-        newData = ListToStringData(printersDataList)
-
-        with (sharedPreferences.edit()) {
-            putString("USER_PRINTERS", newData)
-            apply()
         }
     }
 

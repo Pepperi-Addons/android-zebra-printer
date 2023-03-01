@@ -15,7 +15,7 @@ class BluetoothPermissionManager(val fragment: Fragment) {
     private var isBluetoothConnectPermissionGranted = false
     private var isBluetoothAdvertisePermissionGranted = false
 
-    private var isPermissionGranted = false
+    private var isPermissionGranted = true
 
     private lateinit var permissionLauncher : ActivityResultLauncher<Array<String>>
 
@@ -26,39 +26,35 @@ class BluetoothPermissionManager(val fragment: Fragment) {
        requestBluetoothPermission()
 
    }
-       private fun permissionLauncher(){
-       permissionLauncher = fragment.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
+       private fun permissionLauncher() {
+           permissionLauncher =
+               fragment.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
 
-           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-               isBluetoothScanPermissionGranted = permission[Manifest.permission.BLUETOOTH_SCAN]
-                   ?: isBluetoothScanPermissionGranted
-               isBluetoothConnectPermissionGranted =
-                   permission[Manifest.permission.BLUETOOTH_CONNECT]
-                       ?: isBluetoothConnectPermissionGranted
-               isBluetoothAdvertisePermissionGranted =
-                   permission[Manifest.permission.BLUETOOTH_ADVERTISE]
-                       ?: isBluetoothAdvertisePermissionGranted
-           } else {
-               Log.e("PermissionGranted", "older permission needed")
-           }
+                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                       isBluetoothScanPermissionGranted =
+                           permission[Manifest.permission.BLUETOOTH_SCAN]
+                               ?: isBluetoothScanPermissionGranted
+                       isBluetoothConnectPermissionGranted =
+                           permission[Manifest.permission.BLUETOOTH_CONNECT]
+                               ?: isBluetoothConnectPermissionGranted
+                       isBluetoothAdvertisePermissionGranted =
+                           permission[Manifest.permission.BLUETOOTH_ADVERTISE]
+                               ?: isBluetoothAdvertisePermissionGranted
+                   } else {
+                       Log.e("PermissionGranted", "older permission needed")
+                   }
 
-           if (isBluetoothScanPermissionGranted){
-               isPermissionGranted = true
-           }else{
-               isPermissionGranted = false
-           }
-           if (isBluetoothConnectPermissionGranted){
-               isPermissionGranted = true
-           }else{
-               isPermissionGranted = false
-           }
-           if (isBluetoothAdvertisePermissionGranted){
-               isPermissionGranted = true
-           }else{
-               isPermissionGranted = false
-           }
+                   if (!isBluetoothScanPermissionGranted) {
+                       isPermissionGranted = false
+                   }
+                   if (!isBluetoothConnectPermissionGranted) {
+                       isPermissionGranted = false
+                   }
+                   if (!isBluetoothAdvertisePermissionGranted) {
+                       isPermissionGranted = false
+                   }
+               }
        }
-   }
 
     private fun requestBluetoothPermission() {
 
