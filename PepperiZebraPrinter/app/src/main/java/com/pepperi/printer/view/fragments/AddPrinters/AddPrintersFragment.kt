@@ -88,6 +88,11 @@ class AddPrintersFragment : DialogFragment() {
 
 
     private fun setTabSelectedListener() {
+
+        val touchableList =  binding.tabLayout.touchables
+        touchableList[1].isEnabled = false
+        touchableList[2].isEnabled = false
+
         binding.tabLayout.addOnTabSelectedListener(object  : OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 onSelectedTab(binding.tabLayout.selectedTabPosition)
