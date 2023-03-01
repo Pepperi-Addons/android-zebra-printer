@@ -16,4 +16,5 @@
     <string name="network">Network</string>
     <string name="set_as_default">Set as default</string>
     <string name="remove">Remove</string>
+    <string name="close">Close</string>
 </resources>

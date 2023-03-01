@@ -5,10 +5,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pepperi.printer.model.entities.UserPrinterModel
 
-
+const val SHARED_PREFERENCES = "USER_SP"
+const val SHARED_PREFERENCES_FILE = "USER_PRINTERS"
 class SharedPreferencesApi(private val context: Context) {
 
-    private val sharedPreferences = context.getSharedPreferences("USER_SP",Context.MODE_PRIVATE)
+    private val sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES,Context.MODE_PRIVATE)
 
     //  THe function add user to the sharedPreferences
     fun saveUserPrinter(userPrinterModel: UserPrinterModel){
@@ -23,7 +24,7 @@ class SharedPreferencesApi(private val context: Context) {
             newData = ListToStringData(printersDataList)
 
             with (sharedPreferences.edit()) {
-                putString("USER_PRINTERS", newData)
+                putString(SHARED_PREFERENCES_FILE, newData)
                 apply()
             }
         }else {
@@ -51,7 +52,7 @@ class SharedPreferencesApi(private val context: Context) {
     private fun getPrintersData() : ArrayList<UserPrinterModel>{
         var returnedList = arrayListOf<UserPrinterModel>()
 
-        val stringData = sharedPreferences.getString("USER_PRINTERS", "") ?: ""
+        val stringData = sharedPreferences.getString(SHARED_PREFERENCES_FILE, "") ?: ""
 
         val myType = object : TypeToken<List<UserPrinterModel>>() {}.type
         if (stringData != ""){
@@ -88,7 +89,7 @@ class SharedPreferencesApi(private val context: Context) {
        val newData = ListToStringData(printersData)
 
         with (sharedPreferences.edit()) {
-            putString("USER_PRINTERS", newData)
+            putString(SHARED_PREFERENCES_FILE, newData)
             apply()
         }
     }
