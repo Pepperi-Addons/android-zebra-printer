@@ -80,11 +80,11 @@ class SharedPreferencesApi(private val context: Context) {
 
             clearSharedPreferences()
 
-            saveListOfPrinter(printersData)
+            saveListOfPrinters(printersData)
         }
     }
     // used only if sharedPreferences is empty
-    private fun saveListOfPrinter(printersData: java.util.ArrayList<UserPrinterModel>) {
+    private fun saveListOfPrinters(printersData: java.util.ArrayList<UserPrinterModel>) {
 
        val newData = ListToStringData(printersData)
 
@@ -107,7 +107,7 @@ class SharedPreferencesApi(private val context: Context) {
 
             clearSharedPreferences()
 
-            saveListOfPrinter(printersData)
+            saveListOfPrinters(printersData)
         }
     }
      fun clearSharedPreferences(){

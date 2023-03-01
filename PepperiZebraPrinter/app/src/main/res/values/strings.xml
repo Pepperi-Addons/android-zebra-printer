@@ -17,4 +17,6 @@
     <string name="set_as_default">Set as default</string>
     <string name="remove">Remove</string>
     <string name="close">Close</string>
+    <string name="no_printer_selected_text">No printer selected Please open the app and select a printer</string>
+    <string name="no_printer_selected_title">No printer selected</string>
 </resources>

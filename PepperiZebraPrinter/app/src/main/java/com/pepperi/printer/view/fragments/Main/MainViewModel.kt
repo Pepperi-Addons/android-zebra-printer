@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.pepperi.printer.model.Repository
 import com.pepperi.printer.model.api.zebra.ZebraApi
 import com.pepperi.printer.model.entities.UserPrinterModel
+import com.pepperi.printer.view.Managers.PrintDialogManager
 
 
 class MainViewModel(private val repository: Repository,private val zebraApi: ZebraApi) : ViewModel(){
@@ -66,10 +67,8 @@ class MainViewModel(private val repository: Repository,private val zebraApi: Zeb
         repository.removeAllPrinters()
     }
 
-    fun printData(data : Uri){
-        userDefaultPrinter?.let {
-            zebraApi.printData(data,it)
-        }
+    fun printData(data: Uri, dialogManager: PrintDialogManager){
+            zebraApi.printData(data,userDefaultPrinter!!,dialogManager)
 
     }
 }

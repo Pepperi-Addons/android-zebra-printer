@@ -2,14 +2,12 @@ package com.pepperi.printer.view.fragments.Main
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appa.viewModel.MainViewModel
@@ -18,13 +16,10 @@ import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.Managers.BluetoothPermissionManager
+import com.pepperi.printer.view.Managers.NoPrinterDialogManager
 import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 
 /**
@@ -53,7 +48,7 @@ class MainFragment : Fragment() {
 
         userApplication = requireActivity().application as UserApplication
 
-        viewModelFactory = ViewModelFactory(userApplication.repository)
+        viewModelFactory = ViewModelFactory(userApplication.repository,userApplication.zebraApi)
         mainViewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
 
 
@@ -69,7 +64,15 @@ class MainFragment : Fragment() {
     }
 
     private fun printData(_data: Uri) {
-        printData(_data)
+
+        mainViewModel.userDefaultPrinter?.let {
+
+            val dialogManager = PrintDialogManager(this,mainViewModel)
+            dialogManager.showDialog("Printing...")
+
+            mainViewModel.printData(_data, dialogManager)
+        }?:  NoPrinterDialogManager(this,mainViewModel).showDialog()
+
     }
 
     override fun onCreateView(
@@ -84,7 +87,6 @@ class MainFragment : Fragment() {
         initList()
 
         initObservers()
-
 
         return binding.root
 

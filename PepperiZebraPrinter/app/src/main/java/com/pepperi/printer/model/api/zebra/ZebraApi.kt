@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import androidx.lifecycle.lifecycleScope
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.zebra.sdk.comm.BluetoothConnectionInsecure
@@ -46,7 +45,7 @@ class ZebraApi
         return lastlist
     }
 
-     fun printData(data: Uri, defaultPrinter : UserPrinterModel) {
+     fun printData(data: Uri, defaultPrinter: UserPrinterModel, dialogManager: PrintDialogManager) {
 
 
             val parameters = data.queryParameterNames.associateWith { data.getQueryParameters(it) }
@@ -55,19 +54,30 @@ class ZebraApi
 
             val dataToPrint = getDataToPrint(dataURI)
 
+         val thePrinterConn: Connection = BluetoothConnectionInsecure(
+             defaultPrinter.mac )
+
             if (dataURI.contains("x-application/zpl")
                 || dataURI.contains("application/vnd.hp-PCL")){
 
                 GlobalScope.launch(Dispatchers.IO){
-                    printZPL(defaultPrinter.mac,dataToPrint)
+
+                    printZPL(thePrinterConn,dataToPrint)
+
+                    closePrint(thePrinterConn,dialogManager)
                 }
 
             }else if(dataURI.contains("application/pdf")) {
                 GlobalScope.launch(Dispatchers.IO){
-                    print(defaultPrinter.mac,getFile(dataToPrint))
+
+                    printPDF(thePrinterConn,getFile(dataToPrint))
+
+                    closePrint(thePrinterConn,dialogManager)
                 }
+                Log.e("application/pdf","End")
             } else {
 
+                closePrint(thePrinterConn,dialogManager)
             }
 //        }?: Log.e("Print error", "No printer selected")
     }
@@ -76,13 +86,7 @@ class ZebraApi
 
         val dataArryeHelper = dataURI.split(",")
 
-        var dataStringHelper = ""
-
-        for (i in 1 until dataArryeHelper.size){
-            dataStringHelper += dataArryeHelper[i]
-        }
-
-        return dataStringHelper
+        return dataArryeHelper[1]
     }
 
     private fun getFile(dataPrint:String) : File {
@@ -101,10 +105,9 @@ class ZebraApi
 
     }
 
-    private suspend fun printZPL(macAddress: String, data : String) {
+    private suspend fun printZPL(thePrinterConn: Connection, data : String) {
         try {
-            val thePrinterConn: Connection = BluetoothConnectionInsecure(
-                macAddress )
+
             coroutineScope {
                 // Open the connection - physical connection is established here.
                 thePrinterConn.open()
@@ -121,14 +124,11 @@ class ZebraApi
         }catch (e : Exception){
             Log.e("printException", e.stackTraceToString())
         }
+        Log.e("printZPL","End")
     }
 
-    private suspend fun print(macAddress: String, pdfFile: File) {
+    private suspend fun printPDF(thePrinterConn: Connection, pdfFile: File) {
         try {
-            val thePrinterConn: Connection = BluetoothConnectionInsecure(
-                macAddress )
-
-
             coroutineScope() {
                 // Open the connection - physical connection is established here.
                 if (!thePrinterConn.isConnected()) {
@@ -148,5 +148,11 @@ class ZebraApi
         }catch (e : Exception){
             Log.e("printException", e.stackTraceToString())
         }
+        Log.e("printPDF","End")
+    }
+
+    private fun closePrint(thePrinterConn: Connection, dialogManager: PrintDialogManager ){
+        thePrinterConn.close()
+        dialogManager.closeDialog()
     }
 }
