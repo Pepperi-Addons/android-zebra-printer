@@ -23,7 +23,7 @@
         tools:layout="@layout/fragment_add_printers">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            android:id="@+id/action_SecondFragment_to_MainFragment"
             app:destination="@id/MainFragment" />
     </fragment>
 </navigation>

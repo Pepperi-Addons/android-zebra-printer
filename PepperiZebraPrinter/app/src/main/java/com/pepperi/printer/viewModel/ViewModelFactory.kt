@@ -1,6 +1,5 @@
 package com.pepperi.printer.viewModel
 
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.appa.viewModel.MainViewModel
@@ -12,7 +11,7 @@ import com.pepperi.printer.view.fragments.AddPrinters.AddPrintersViewModel
 class ViewModelFactory(private val repository: Repository, private val zebraApi: ZebraApi?  = null): ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
         when(modelClass){
-            MainViewModel::class.java ->  MainViewModel(repository) as T
+            MainViewModel::class.java ->  MainViewModel(repository, zebraApi!!) as T
             AddPrintersViewModel::class.java ->  AddPrintersViewModel(repository, zebraApi!!) as T
             else -> throw Exception("Not Fund view model class")
         }

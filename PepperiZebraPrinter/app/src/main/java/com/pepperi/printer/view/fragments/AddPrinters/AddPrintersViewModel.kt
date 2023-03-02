@@ -18,13 +18,7 @@ class AddPrintersViewModel(val repository: Repository, val  zebraApi: ZebraApi) 
 
     var discoveredPrintersLiveData : MutableLiveData<List<SelectedPrinterModel?>?> =  MutableLiveData<List<SelectedPrinterModel?>?>()
 
-    init {
-                scanPrinters()
-        }
-    fun clearPrinters(){
-        val emptyList = listOf<SelectedPrinterModel?>()
-        discoveredPrintersLiveData.value = emptyList
-    }
+
 
     fun scanPrinters(){
         viewModelScope.launch {
