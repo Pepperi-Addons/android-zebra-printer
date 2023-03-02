@@ -4,19 +4,36 @@ import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pepperi.printer.model.Repository
+import com.pepperi.printer.model.api.zebra.OnFinishPrintListener
 import com.pepperi.printer.model.api.zebra.ZebraApi
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.Managers.PrintDialogManager
 
-
+const val DATA_URI="dataURI"
 class MainViewModel(private val repository: Repository,private val zebraApi: ZebraApi) : ViewModel(){
 
     var allPrintersLiveData : MutableLiveData<List<UserPrinterModel>?> =  MutableLiveData<List<UserPrinterModel>?>()
+    val errorsLiveData :MutableLiveData<Boolean?> =  MutableLiveData<Boolean?>()
     var userDefaultPrinter : UserPrinterModel? =  null
 
     init {
         getAllUserPrinters()
         userDefaultPrinter =  getDefaultPrinter()
+
+        setZebraApiListener()
+    }
+
+    private fun setZebraApiListener() {
+        zebraApi.setOnFinishPrintListener(object : OnFinishPrintListener{
+            override fun onFinishPrintListener(isPrintSuccess: Boolean) {
+
+        if(isPrintSuccess){
+            errorsLiveData.value = true
+        }else{
+            errorsLiveData.value = false
+        }
+    }
+        })
     }
 
     fun getAllUserPrinters(){
@@ -67,8 +84,18 @@ class MainViewModel(private val repository: Repository,private val zebraApi: Zeb
         repository.removeAllPrinters()
     }
 
-    fun printData(data: Uri, dialogManager: PrintDialogManager){
-            zebraApi.printData(data,userDefaultPrinter!!,dialogManager)
+    fun printDataByUri(data: Uri){
+
+        val dataUri = getDataUriFromUri(data)
+
+        zebraApi.printData(dataUri,userDefaultPrinter!!.mac)
+    }
+
+    fun getDataUriFromUri(uri: Uri) :String{
+        val parameters = uri.queryParameterNames.associateWith { uri.getQueryParameters(it) }
+
+        return parameters[DATA_URI]?.get(0).toString()
+
 
     }
 }

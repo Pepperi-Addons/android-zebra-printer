@@ -1,31 +1,33 @@
 package com.pepperi.printer.model.api.zebra
 
 import android.content.Context
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import com.pepperi.printer.model.entities.UserPrinterModel
-import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.zebra.sdk.comm.BluetoothConnectionInsecure
 import com.zebra.sdk.comm.Connection
 import com.zebra.sdk.printer.ZebraPrinterFactory
 import com.zebra.sdk.printer.discovery.BluetoothDiscoverer
 import com.zebra.sdk.printer.discovery.DiscoveredPrinter
 import com.zebra.sdk.printer.discovery.DiscoveryException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+
+public interface OnFinishPrintListener{
+    fun onFinishPrintListener(isPrintSuccess : Boolean)
+}
+
 class ZebraApi
     (val context: Context) {
+
+    var isPrintSuccess = false
+    var finishPrintListener: OnFinishPrintListener? = null
 
     //The function Scan of Zebra bluetooth printers and return them as List of DiscoveredPrinter
     suspend fun bluetoothScan() : Flow<ArrayList<DiscoveredPrinter?>> {
@@ -45,41 +47,59 @@ class ZebraApi
         return lastlist
     }
 
-     fun printData(data: Uri, defaultPrinter: UserPrinterModel, dialogManager: PrintDialogManager) {
+     fun printData(dataURI: String, macAddress: String) {
 
+         val dataToPrint = getDataToPrint(dataURI)
 
-            val parameters = data.queryParameterNames.associateWith { data.getQueryParameters(it) }
+            var printerConn: Connection? = null
+         try {
+             printerConn = BluetoothConnectionInsecure(
+                 macAddress)
 
-            val dataURI = parameters["dataURI"]?.get(0).toString()
+         }catch (e : Exception){
+             Log.e("printException", e.stackTraceToString())
+         }
 
-            val dataToPrint = getDataToPrint(dataURI)
+         printerConn?.let { thePrinterConn ->
+             if (dataURI.contains("x-application/zpl")
+                 || dataURI.contains("application/vnd.hp-PCL")
+             ) {
 
-         val thePrinterConn: Connection = BluetoothConnectionInsecure(
-             defaultPrinter.mac )
+                 GlobalScope.launch(Dispatchers.IO) {
 
-            if (dataURI.contains("x-application/zpl")
-                || dataURI.contains("application/vnd.hp-PCL")){
+                     printZPL(thePrinterConn, dataToPrint)
 
-                GlobalScope.launch(Dispatchers.IO){
+                     async {
+                         withContext(Dispatchers.Main) {
+                             checkIsPrintSuccess(thePrinterConn)
+                         }
+                     }
 
-                    printZPL(thePrinterConn,dataToPrint)
+                 }
 
-                    closePrint(thePrinterConn,dialogManager)
-                }
+             } else if (dataURI.contains("application/pdf")) {
+                 GlobalScope.launch(Dispatchers.IO) {
 
-            }else if(dataURI.contains("application/pdf")) {
-                GlobalScope.launch(Dispatchers.IO){
+                     printPDF(thePrinterConn, getFile(dataToPrint))
 
-                    printPDF(thePrinterConn,getFile(dataToPrint))
+                     async {
+                         withContext(Dispatchers.Main) {
+                             checkIsPrintSuccess(thePrinterConn)
+                         }
+                     }
+                 }
+             } else {
 
-                    closePrint(thePrinterConn,dialogManager)
-                }
-                Log.e("application/pdf","End")
-            } else {
+                 checkIsPrintSuccess(thePrinterConn)
+             }
+         }
+    }
 
-                closePrint(thePrinterConn,dialogManager)
-            }
-//        }?: Log.e("Print error", "No printer selected")
+    private fun checkIsPrintSuccess(thePrinterConn: Connection) {
+
+        thePrinterConn.close()
+
+        finishPrintListener?.onFinishPrintListener(isPrintSuccess)
     }
 
     private fun getDataToPrint(dataURI: String): String {
@@ -105,31 +125,37 @@ class ZebraApi
 
     }
 
-    private suspend fun printZPL(thePrinterConn: Connection, data : String) {
+    private suspend fun printZPL(
+        thePrinterConn: Connection,
+        data: String
+    ) {
+        coroutineScope {
         try {
-
-            coroutineScope {
                 // Open the connection - physical connection is established here.
                 thePrinterConn.open()
-                // This example prints "This is a ZPL test." near the top of the label.
 
-                // This example prints "This is a ZPL test." near the top of the label.
                 val zplData = data
 
                 // Send the data to printer as a byte array.
-
-                // Send the data to printer as a byte array.
                 thePrinterConn.write(zplData.toByteArray())
-            }
+
+            isPrintSuccess = true
+
         }catch (e : Exception){
             Log.e("printException", e.stackTraceToString())
+            isPrintSuccess =false
+        }
         }
         Log.e("printZPL","End")
     }
 
-    private suspend fun printPDF(thePrinterConn: Connection, pdfFile: File) {
+    private suspend fun printPDF(
+        thePrinterConn: Connection,
+        pdfFile: File
+    ) {
+        coroutineScope() {
         try {
-            coroutineScope() {
+
                 // Open the connection - physical connection is established here.
                 if (!thePrinterConn.isConnected()) {
                     thePrinterConn.open();
@@ -143,16 +169,20 @@ class ZebraApi
                 if (printerStatus.isReadyToPrint) {
                     // Send the data to printer as a byte array.
                     printer.sendFileContents(pdfFile.getAbsolutePath())
+                } else {
+
                 }
-            }
-        }catch (e : Exception){
+            isPrintSuccess =true
+
+        }catch (e : Exception) {
             Log.e("printException", e.stackTraceToString())
+            isPrintSuccess = false
+        }
         }
         Log.e("printPDF","End")
     }
 
-    private fun closePrint(thePrinterConn: Connection, dialogManager: PrintDialogManager ){
-        thePrinterConn.close()
-        dialogManager.closeDialog()
+    fun setOnFinishPrintListener(setOnFinishPrintListener: OnFinishPrintListener){
+        finishPrintListener = setOnFinishPrintListener
     }
 }

@@ -14,9 +14,11 @@ import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentMainBinding
+import com.pepperi.printer.model.api.zebra.OnFinishPrintListener
+import com.pepperi.printer.model.api.zebra.ZebraApi
 import com.pepperi.printer.model.entities.UserPrinterModel
 import com.pepperi.printer.view.Managers.BluetoothPermissionManager
-import com.pepperi.printer.view.Managers.NoPrinterDialogManager
+import com.pepperi.printer.view.Managers.PrinterErrorsDialogManager
 import com.pepperi.printer.view.Managers.PrintDialogManager
 import com.pepperi.printer.view.adapters.ListPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
@@ -25,7 +27,7 @@ import com.pepperi.printer.viewModel.ViewModelFactory
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class MainFragment : Fragment() {
+class MainFragment : Fragment() /*, OnFinishPrintListener */{
 
     private var _binding: FragmentMainBinding? = null
 
@@ -34,7 +36,7 @@ class MainFragment : Fragment() {
     private lateinit var userApplication: UserApplication
 
     private lateinit var listAdapter: ListPrinterAdapter
-    private var selectedPrinter :String? = null
+    private lateinit var dialogManager : PrintDialogManager
 
 
     // This property is only valid between onCreateView and
@@ -67,11 +69,11 @@ class MainFragment : Fragment() {
 
         mainViewModel.userDefaultPrinter?.let {
 
-            val dialogManager = PrintDialogManager(this,mainViewModel)
+            dialogManager = PrintDialogManager(this,mainViewModel)
             dialogManager.showDialog("Printing...")
 
-            mainViewModel.printData(_data, dialogManager)
-        }?:  NoPrinterDialogManager(this,mainViewModel).showDialog()
+            mainViewModel.printDataByUri(_data)
+        }?:  PrinterErrorsDialogManager(this,mainViewModel).showDialog(requireActivity().getString(R.string.no_printer_selected_text))
 
     }
 
@@ -155,6 +157,16 @@ class MainFragment : Fragment() {
                 checkScreenEmptyList()
             }
         }
+
+        mainViewModel.errorsLiveData.observe(viewLifecycleOwner){ isSucsees ->
+            isSucsees?.let {
+                if(it){
+                    dialogManager.closeDialog()
+                }else{
+                    dialogManager.showError(requireActivity().getString(R.string.connection_error))
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -186,5 +198,13 @@ class MainFragment : Fragment() {
 
         mainViewModel.getAllUserPrinters()
     }
+
+//    override fun onFinishPrintListener(isPrintSuccess: Boolean) {
+//        if(isPrintSuccess){
+//            dialogManager.closeDialog()
+//        }else{
+//            dialogManager.showError(requireActivity().getString(R.string.connection_error))
+//        }
+//    }
 
 }

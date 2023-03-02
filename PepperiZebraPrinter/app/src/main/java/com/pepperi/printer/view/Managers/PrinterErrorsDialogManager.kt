@@ -8,19 +8,20 @@ import com.appa.viewModel.MainViewModel
 import com.pepperi.printer.R
 import com.pepperi.printer.view.fragments.Main.MainFragment
 
-class NoPrinterDialogManager(val fragment: MainFragment, val viewModel: MainViewModel) {
+class PrinterErrorsDialogManager(val fragment: MainFragment, val viewModel: MainViewModel) {
 
     val dialog = Dialog(fragment.requireContext())
     lateinit var print_pdf_btn : Button
     lateinit var pdf_print : TextView
 
-     fun showDialog(){
+     fun showDialog(text: String){
 
         dialogSetting()
 
         initMembers()
 
-        membersSetting()
+        membersSetting(text)
+
 
         dialog.show()
 
@@ -34,13 +35,14 @@ class NoPrinterDialogManager(val fragment: MainFragment, val viewModel: MainView
         pdf_print = dialog.findViewById(R.id.pdf_print) as TextView
     }
 
-    private fun membersSetting() {
+    private fun membersSetting(text: String) {
 
         print_pdf_btn.setOnClickListener {
 
             onClick()
         }
 
+        pdf_print.text = text
     }
 
     private fun onClick() {
@@ -52,11 +54,11 @@ class NoPrinterDialogManager(val fragment: MainFragment, val viewModel: MainView
     private fun dialogSetting(){
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
-        dialog.setContentView(R.layout.pdf_print_no_user)
-        dialog.setTitle(fragment.getString(R.string.no_printer_selected_title))
+        dialog.setContentView(R.layout.error_printers)
+        dialog.setTitle(fragment.getString(R.string.error_printers_title))
     }
 
-    fun closeDialog(){
+     fun closeDialog(){
         fragment.activity?.finish()
         dialog.dismiss()
     }
