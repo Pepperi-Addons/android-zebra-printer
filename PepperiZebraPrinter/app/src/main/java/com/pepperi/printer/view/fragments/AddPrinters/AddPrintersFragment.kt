@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.pepperi.printer.view.Managers.AddUserPrinterDialogManager
 import com.pepperi.printer.application.UserApplication
 import com.pepperi.printer.databinding.FragmentAddPrintersBinding
+import com.pepperi.printer.view.Managers.BluetoothPermissionManager
 import com.pepperi.printer.view.adapters.ListDiscoveredPrinterAdapter
 import com.pepperi.printer.viewModel.ViewModelFactory
 
@@ -33,7 +34,7 @@ class AddPrintersFragment : DialogFragment() {
     private lateinit var listAdapter: ListDiscoveredPrinterAdapter
 
     private var selectedPosition :Int? = null
-
+    private  var isPermissionGranted = false
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -42,6 +43,10 @@ class AddPrintersFragment : DialogFragment() {
         super.onCreate(savedInstanceState)
 
         userApplication = requireActivity().application as UserApplication
+
+        val bluetoothPermissionManager = BluetoothPermissionManager(this)
+        bluetoothPermissionManager.requestPermissions()
+        isPermissionGranted = bluetoothPermissionManager.getPermissionsGranted()
 
         viewModelFactory = ViewModelFactory(userApplication.repository,userApplication.zebraApi)
         addPrintersModel = ViewModelProvider(this, viewModelFactory).get(AddPrintersViewModel::class.java)
@@ -62,7 +67,11 @@ class AddPrintersFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.progressBar.visibility = View.VISIBLE
+        if (isPermissionGranted){
+            binding.progressBar.visibility = View.VISIBLE
+
+            addPrintersModel.scanPrinters()
+        }
 
         setTabSelectedListener()
 
@@ -79,6 +88,11 @@ class AddPrintersFragment : DialogFragment() {
 
 
     private fun setTabSelectedListener() {
+
+        val touchableList =  binding.tabLayout.touchables
+        touchableList[1].isEnabled = false
+        touchableList[2].isEnabled = false
+
         binding.tabLayout.addOnTabSelectedListener(object  : OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 onSelectedTab(binding.tabLayout.selectedTabPosition)
@@ -102,9 +116,10 @@ class AddPrintersFragment : DialogFragment() {
     }
 
     private fun initList() {
-        listAdapter = ListDiscoveredPrinterAdapter()
+        listAdapter = ListDiscoveredPrinterAdapter(this.requireContext())
         listAdapter.setOnItemClickListener(object : ListDiscoveredPrinterAdapter.ClickListener {
             override fun onItemClick(v: View, position: Int) {
+                Log.e("onItemClick", "ADD_PERINTER ${position}")
                 selectedPosition = position
             }
         })
