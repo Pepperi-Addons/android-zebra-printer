@@ -1,10 +1,12 @@
 package com.pepperi.printer.view.adapters
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +14,7 @@ import com.pepperi.printer.R
 import com.pepperi.printer.databinding.CardUserPrinterBinding
 import com.pepperi.printer.model.entities.UserPrinterModel
 
-open class ListPrinterAdapter :
+open class ListPrinterAdapter(val context: Context) :
  
     ListAdapter<UserPrinterModel,ListPrinterAdapter.ListViewHolder>(ListUserPrinterDiffCallback()){
 
@@ -29,9 +31,9 @@ open class ListPrinterAdapter :
                 binding.getRoot().setOnClickListener(this);
 
                 if(printer.isDefault){
-                    binding.mainCard.setBackgroundColor(R.color.white)
+                    binding.mainCard.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_700_lite))
                 }else{
-                    binding.mainCard.setBackgroundColor(R.color.grey)
+                    binding.mainCard.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_700))
                 }
             }
 

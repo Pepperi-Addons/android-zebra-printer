@@ -23,7 +23,7 @@
             android:textAlignment="center"
             android:textColor="@color/black"
             android:id="@+id/pdf_print"
-            android:layout_margin="20dp"/>
+            android:layout_margin="16dp"/>
 
         <Button
             android:id="@+id/print_pdf_btn"

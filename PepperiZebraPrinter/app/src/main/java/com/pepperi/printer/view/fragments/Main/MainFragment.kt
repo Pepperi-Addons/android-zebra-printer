@@ -95,7 +95,7 @@ class MainFragment : Fragment() /*, OnFinishPrintListener */{
     }
 
     private fun initList() {
-        listAdapter = ListPrinterAdapter()
+        listAdapter = ListPrinterAdapter(this.requireContext())
 
         listAdapter.setOnItemClickListener(object : ListPrinterAdapter.ClickListener{
             override fun onItemClick(v: View, userPrinter: UserPrinterModel) {
